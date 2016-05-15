@@ -161,9 +161,13 @@ var parseCheckFor = function(chunck){
             if(t == 1 && item.Post.Text != lastMessageByMe && !skip){
                 skip = true;
                 checkAction(item.Post.Text, (content) => {
-                    sendChatMessage('denkomanceski@gmail.com', content, () => {
+                    if(content.length > 0)
+                        sendChatMessage('denkomanceski@gmail.com', content, () => {
                         skip = false;
                     });
+                    else {
+                        skip = false;
+                    }
                 });
             }
             console.log(item.Post.Text)
@@ -184,12 +188,18 @@ var checkAction = (action, cb) => {
         });
     }
     else if(action.indexOf('volume down') > -1) {
-        volume.setVolume(30, (success) => {
-            cb("Right..the volume is decreased to 30%. ");
+        volume.setVolume(60, (success) => {
+            cb("Right..the volume is decreased to 60%. ");
         });
     }
-    else if(action.toLowerCase().indexOf('hello jarvis') > -1){
-        cb('Hey, alright')
+    else if(action.toLowerCase().indexOf('hello') > -1){
+        cb('Hi boss, what would you like me to do for you :)')
+    }
+    else if(action.toLowerCase().indexOf('how are you') > -1){
+        cb('I am feeling great, I have you')
+    }
+    else {
+        cb('');
     }
 }
 //sendMailMessage('ivica.taseski94@gmail.com', 'Mofo', 'What the heck');
