@@ -1,7 +1,7 @@
 """Module to parse time data."""
 from timex import tag, gmt, ground
 from dateutil import parser
-
+import sys
 
 def timex_tag(content, base_time=gmt()):
     """Timex tagger using the timex module.
@@ -15,9 +15,7 @@ def timex_tag(content, base_time=gmt()):
 
 def example_timex_tag():
     """Example for testing timex."""
-    return timex_tag('Belfast up and coming band Cashier No.9 are playing a'
-                     'free gig in the Mercantile this Saturday night'
-                     ' at 9.30pm.')
+    return timex_tag('Belfast up and coming band Cashier No.9 are playing a free gig in the Mercantile this Saturday night at 9:30pm.')
 
 
 def example2_timex_tag():
@@ -40,3 +38,8 @@ def example_dateutil():
     """Example for testing dateutil."""
     content = example2_timex_tag()
     return parse_time(content)
+
+
+if __name__ == "__main__":
+    for v in sys.argv[1:]:
+        parse_time(v)

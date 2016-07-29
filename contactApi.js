@@ -12,20 +12,20 @@ var conversationConfig = {
     email: 'kristjansesek@gmail.com',
     identity: 'A1_5b026989dc734be29cab0782aadfa5dc'
 };
-var options = {
-    mode: 'text',
-    pythonPath: '/usr/bin/python',
-    pythonOptions: ['-u'],
-    scriptPath: __dirname+'/pythonScripts',
-    args: ['value1', 'value2', 'value3']
-};
-var PythonShell = require('python-shell');
-PythonShell.run('helloworld.py', options, (err, results) => {
-    if (err) throw err;
-    // results is an array consisting of messages collected during execution
-    console.log('results: %j', JSON.stringify(results[0]));
-});
+
 var nesty = require('./nest');
+
+var extractionController = require('./controllers/extractionController');
+var externalAPIController = require('./controllers/externalAPIController');
+
+var ACTION = {
+    SKYSCANNER: 0,
+    BOOKING: 1,
+    GOOGLE_CALENDAR: 2,
+    UBER: 3
+};
+
+
 var sendMailMessage = (email, title, content) => {
     var options = {
         host: config.apiUrl,
@@ -189,12 +189,12 @@ var parseCheckFor = function (chunck) {
                     skip = true;
                     checkAction(item.Post.Text, (content) => {
                         if (content.length > 0)
-                            // sendChatMessageByEmail('denkomanceski@gmail.com', content, () => {
-                            //     skip = false;
-                            // });
-                        sendChatMessageByFeedIdentity('A1_20f0a67d5ce841a1b409e6e98f76602d', content, () => {
-                            skip = false;
-                        });
+                        // sendChatMessageByEmail('denkomanceski@gmail.com', content, () => {
+                        //     skip = false;
+                        // });
+                            sendChatMessageByFeedIdentity('A1_20f0a67d5ce841a1b409e6e98f76602d', content, () => {
+                                skip = false;
+                            });
 
 
                         else {
@@ -202,12 +202,13 @@ var parseCheckFor = function (chunck) {
                         }
                     });
                 }
-                console.log(t+'. '+item.Post.Text)
+                console.log(t + '. ' + item.Post.Text)
             }
 
     });
 
-}
+};
+
 var volume = require('./volume');
 var lastActionCode, lastActionText;
 var checkAction = (action, cb) => {
@@ -236,25 +237,40 @@ var checkAction = (action, cb) => {
         cb('I am feeling great, I have you')
     }
     else if (action.toLowerCase().indexOf('to go from') > -1) {
-        lastActionCode = 1;
+        lastActionCode = Action.SKYSCANNER;
         lastActionText = action;
         cb('Do you want me to redirect you to skyscanner ?')
     }
-    else if(action.toLowerCase().indexOf('yes') > -1){
-        switch(lastActionCode){
-            case 1:
-                var spawn = require('child_process').spawn
+    else if (action.toLowerCase().indexOf('yes') > -1) {
+        switch (lastActionCode) {
+            case action.SKYSCANNER:
+                var spawn = require('child_process').spawn;
                 spawn('open', [checkCities(lastActionText)]);
-                lastActionCode = '';
-                lastActionText = '';
+                cb('');
+                break;
+            case action.GOOGLE_CALENDAR:
+                cb('A meeting on ' + lastActionText + ' added to calendar.');
                 break;
         }
-        cb('')
+
+        // clear last action
+        lastActionCode = '';
+        lastActionText = '';
+    }
+    else if (action.toLowerCase().indexOf('meet')) {
+        // try to extract the date
+        extractionController.extractDateTime.extractDateTime(action, (err, results) => {
+            if (err) throw err;
+            lastActionCode = action.GOOGLE_CALENDAR;
+            cb('I noticed you are planning a meeting on ' + results[0] + '. Would you like me to add a meeting to calendar?');
+            lastActionText = results[0];
+        });
     }
     else {
         cb('');
     }
-}
+};
+
 function checkCities(action) {
     var city1 = '', city2 = '';
     cityNamesDictinary.forEach(city => {
@@ -266,7 +282,7 @@ function checkCities(action) {
             else if (!city2)
                 city2 = city.code;
         }
-    })
+    });
     return `https://www.skyscanner.net/transport/flights/${city1}/${city2}`
 }
 var cityNamesDictinary = [
@@ -280,5 +296,5 @@ sendChatMessageByFeedIdentity('A1_20f0a67d5ce841a1b409e6e98f76602d', "Hello test
 
 getUserId('denkomanceski@gmail.com', (res) => {
     console.log(JSON.stringify(res));
-})
+});
 
