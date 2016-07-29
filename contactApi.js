@@ -4,8 +4,8 @@
 var http = require("http");
 var querystring = require('querystring');
 var config =  {
-    apiUrl: 'sprint-app.4thoffice.com',
-    authToken: 'Bearer 5719ca4c-f87c-e014-1fa5-1bf09f169965'
+    apiUrl: 'clean-sprint-app.4thoffice.com',
+    authToken: 'Bearer ab861108-58a7-7e48-569c-9eece5a5e4b2'
 };
 
 var nesty = require('./nest');
@@ -117,14 +117,15 @@ var getUserId = (email, cb) => {
     req.end();
 };
 var fetchMessages = (user) => {
+    console.log("Hey");
     var postData = querystring.stringify({
         'feedscope':'ChatStream',
-        'feedidentity':'A1_4c8f2c4a303d4474946e27b6e2bc2166',
+        'feedidentity':'A1_0efa529f54eb4d669d865e1da85c7166',
         'size':10,
         'offset':0
     });
     var options = {
-        host: 'sprint-app.4thoffice.com',
+        host: 'clean-sprint-app.4thoffice.com',
         path: '/api/feed?'+postData,
         method: 'GET',
         headers: {
@@ -202,7 +203,7 @@ var checkAction = (action, cb) => {
         cb('');
     }
 }
-//sendMailMessage('ivica.taseski94@gmail.com', 'Mofo', 'What the heck');
+//sendMailMessage('denkomanceski@gmail.com', 'Mofo', 'What the heck');
 //sendChatMessage('denkomanceski@gmail.com', "Testing mountains");
 
 
