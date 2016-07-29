@@ -21,8 +21,8 @@ def example_timex_tag():
 
 
 def example2_timex_tag():
-    """Removing TIMEX2 tags from example for dateutil."""
-    content = example_timex_tag().replace("TIMEX2", "")
+    """Removing numerals from example for dateutil."""
+    content = example_timex_tag().replace("TIMEX2", "")[40:]
     return content
 
 
@@ -31,6 +31,12 @@ def parse_time(dated_content):
 
     Doesn't work if there are any additional numbers in string
     """
-    timed_content = parser.parse(dated_content)
+    timed_content = parser.parse(dated_content, fuzzy=True)
     print timed_content
     return timed_content
+
+
+def example_dateutil():
+    """Example for testing dateutil."""
+    content = example2_timex_tag()
+    return parse_time(content)
