@@ -3,3 +3,5 @@ node_modules
 # python virtualenvs
 venv
 venv2
+# file lock
+.*~
