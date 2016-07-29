@@ -31,7 +31,7 @@ def parse_time(dated_content):
 
     Doesn't work if there are any additional numbers in string
     """
-    timed_content = parser.parse(dated_content)
+    timed_content = parser.parse(dated_content, fuzzy=True)
     print timed_content
     return timed_content
 
