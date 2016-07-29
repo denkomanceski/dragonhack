@@ -5,12 +5,14 @@ var http = require("http");
 var querystring = require('querystring');
 var config = {
     apiUrl: 'clean-sprint-app.4thoffice.com',
-    authToken: 'Bearer c9f52315-8d57-f401-5f16-d77cc9180418'
+    authToken: 'Bearer a9ac4015-e8ba-8dcf-642a-e3fe58e1b57f'
 };
 
 var conversationConfig = {
-    email: 'kristjansesek@gmail.com',
-    identity: 'A1_5b026989dc734be29cab0782aadfa5dc'
+    email: 'denkomanceski@gmail.com',
+    userId: '8a360d87-7ed7-4bea-8846-a807903d0e73',
+    conversationIdentity: 'A1_cc175089d4d34e5492588e65ae8920fd',
+    conversationWith: 'kristjansesek@gmail.com'
 };
 
 var nesty = require('./nest');
@@ -32,9 +34,10 @@ var sendMailMessage = (email, title, content) => {
         path: '/api/post',
         method: 'POST',
         headers: {
-            'Content-Type': 'application/vnd.4thoffice.post-5.15+json',
-            'Accept': 'application/vnd.4thoffice.post-5.15+json',
-            'Authorization': config.authToken
+            'Content-Type': 'application/vnd.4thoffice.post-5.18+json',
+            'Accept': 'application/vnd.4thoffice.post-5.18+json',
+            'Authorization': config.authToken,
+            'X-Impersonate-User': conversationConfig.userId
         }
     };
     var req = http.request(options, (res) => {
@@ -83,7 +86,7 @@ var sendChatMessageByFeedIdentity = (feedIdentity, content, cb) => {
             'Content-Type': 'application/vnd.4thoffice.post-5.18+json',
             'Accept': 'application/vnd.4thoffice.post-5.18+json',
             'Authorization': config.authToken,
-            'X-Impersonate-User': '8a360d87-7ed7-4bea-8846-a807903d0e73'
+            'X-Impersonate-User': conversationConfig.userId
         }
     };
     var req = http.request(options, (res) => {
@@ -115,7 +118,8 @@ var getUserId = (email, cb) => {
         headers: {
             'Content-Type': 'application/vnd.4thoffice.stream.user-5.3+json',
             'Accept': 'application/vnd.4thoffice.stream.user-5.3+json',
-            'Authorization': config.authToken
+            'Authorization': config.authToken,
+            'X-Impersonate-User': conversationConfig.userId
         }
     };
     var req = http.request(options, (res) => {
@@ -144,7 +148,7 @@ var fetchMessages = (user) => {
     console.log("Hey");
     var postData = querystring.stringify({
         'feedscope': 'ChatStream',
-        'feedidentity': conversationConfig.identity,
+        'feedidentity': conversationConfig.conversationIdentity,
         'size': 10,
         'offset': 0
     });
@@ -155,7 +159,8 @@ var fetchMessages = (user) => {
         headers: {
             'Content-Type': 'application/vnd.4thoffice.feed-5.15+json',
             'Accept': 'application/vnd.4thoffice.feed-5.15+json',
-            'Authorization': config.authToken
+            'Authorization': config.authToken,
+            'X-Impersonate-User': conversationConfig.userId
         }
     };
     var data = '';
@@ -175,9 +180,9 @@ var fetchMessages = (user) => {
     req.write(postData);
     req.end();
 };
-// setInterval(function () {
-//     fetchMessages('denkomanceski@gmail.com')
-// }, 3000);
+setInterval(function () {
+    fetchMessages(conversationConfig.conversationWith)
+}, 3000);
 var skip = false;
 var parseCheckFor = function (chunck) {
     var t = 0;
@@ -189,12 +194,12 @@ var parseCheckFor = function (chunck) {
                     skip = true;
                     checkAction(item.Post.Text, (content) => {
                         if (content.length > 0)
-                        // sendChatMessageByEmail('denkomanceski@gmail.com', content, () => {
-                        //     skip = false;
-                        // });
-                            sendChatMessageByFeedIdentity('A1_20f0a67d5ce841a1b409e6e98f76602d', content, () => {
-                                skip = false;
-                            });
+                            // sendChatMessageByEmail('denkomanceski@gmail.com', content, () => {
+                            //     skip = false;
+                            // });
+                        sendChatMessageByFeedIdentity(conversationConfig.conversationIdentity, content, () => {
+                            skip = false;
+                        });
 
 
                         else {
@@ -289,10 +294,11 @@ var cityNamesDictinary = [
     {name: 'london', code: 'lond'},
     {name: 'ljubljana', code: 'lju'}
 ];
-//sendMailMessage('denkomanceski@gmail.com', 'Mofo', 'What the heck');
-sendChatMessageByFeedIdentity('A1_20f0a67d5ce841a1b409e6e98f76602d', "Hello test123", (data) => {
-    console.log(JSON.stringify(data));
-});
+sendChatMessageByEmail('kristjansesek@gmail.com', "test123");
+//sendChatMessageByFeedIdentity('A1_cc175089d4d34e5492588e65ae8920fd','denkomanceski@gmail.com');
+// sendChatMessageByFeedIdentity('A1_20f0a67d5ce841a1b409e6e98f76602d', "Hello test123", (data) => {
+//     console.log(JSON.stringify(data));
+// });
 
 getUserId('denkomanceski@gmail.com', (res) => {
     console.log(JSON.stringify(res));
