@@ -28,7 +28,7 @@ var sendMailMessage = (email, title, content) => {
     var req = http.request(options, (res) => {
         res.setEncoding('utf8');
         res.on('data', (chunk) => {
-            console.log(`BODY: ${chunk}`);
+            //console.log(`BODY: ${chunk}`);
         });
         res.on('end', () => {
             console.log('No more data in response.')
@@ -70,7 +70,7 @@ var sendChatMessage = (email, content, cb) => {
         var req = http.request(options, (res) => {
             res.setEncoding('utf8');
             res.on('data', (chunk) => {
-                console.log(`BODY: ${chunk}`);
+                //console.log(`BODY: ${chunk}`);
             });
             res.on('end', () => {
                 if (cb)cb();
@@ -146,7 +146,7 @@ var fetchMessages = (user) => {
         res.on('data', (chunk) => {
             //cb(JSON.parse(chunk));
             data += chunk;
-            console.log(`BODY: ${chunk}`);
+            //console.log(`BODY: ${chunk}`);
         });
         res.on('end', () => {
             return parseCheckFor(JSON.parse(data));
@@ -158,8 +158,8 @@ var fetchMessages = (user) => {
     req.end();
 };
 setInterval(function () {
-    fetchMessages(conversationConfig.email)
-}, 1000);
+    fetchMessages('denkomanceski@gmail.com')
+}, 3000);
 var skip = false;
 var parseCheckFor = function (chunck) {
     var t = 0;
@@ -171,7 +171,7 @@ var parseCheckFor = function (chunck) {
                     skip = true;
                     checkAction(item.Post.Text, (content) => {
                         if (content.length > 0)
-                            sendChatMessage(conversationConfig.email, content, () => {
+                            sendChatMessage('denkomanceski@gmail.com', content, () => {
                                 skip = false;
                             });
                         else {
@@ -179,14 +179,19 @@ var parseCheckFor = function (chunck) {
                         }
                     });
                 }
-                console.log(item.Post.Text)
+                console.log(t+'. '+item.Post.Text)
             }
 
     });
 
 }
 var volume = require('./volume');
+var lastActionCode, lastActionText;
 var checkAction = (action, cb) => {
+    // if(action == 'yes'){
+    //     if(!lastActionCode)
+    //         cb('Yes what ?')
+    // }
     if (action.indexOf('coming home') > -1) {
         nesty.setTemperature(25);
         cb('Great! The current temperature here is 15 degree, but by the time you come home I will set it to 25');
@@ -207,12 +212,46 @@ var checkAction = (action, cb) => {
     else if (action.toLowerCase().indexOf('how are you') > -1) {
         cb('I am feeling great, I have you')
     }
+    else if (action.toLowerCase().indexOf('to go from') > -1) {
+        lastActionCode = 1;
+        lastActionText = action;
+        cb('Do you want me to redirect you to skyscanner ?')
+    }
+    else if(action.toLowerCase().indexOf('yes') > -1){
+        switch(lastActionCode){
+            case 1:
+                var spawn = require('child_process').spawn
+                spawn('open', [checkCities(lastActionText)]);
+                lastActionCode = '';
+                lastActionText = '';
+                break;
+        }
+        cb('')
+    }
     else {
         cb('');
     }
 }
-//sendMailMessage(conversationConfig.email, 'Mofo', 'What the heck');
-//sendChatMessage(conversationConfig.email, "Testing mountains");
+function checkCities(action) {
+    var city1 = '', city2 = '';
+    cityNamesDictinary.forEach(city => {
+        var indexNr = action.indexOf(city.name);
+        if (indexNr > -1) {
+            action = action.slice(0, indexNr) + action.slice(indexNr + city.name.length, action.length);
+            if (!city1)
+                city1 = city.code;
+            else if (!city2)
+                city2 = city.code;
+        }
+    })
+    return `https://www.skyscanner.net/transport/flights/${city1}/${city2}`
+}
+var cityNamesDictinary = [
+    {name: 'london', code: 'lond'},
+    {name: 'ljubljana', code: 'lju'}
+];
+//sendMailMessage('denkomanceski@gmail.com', 'Mofo', 'What the heck');
+//sendChatMessage('denkomanceski@gmail.com', "Testing mountains");
 
 
 
