@@ -5,9 +5,21 @@ var http = require("http");
 var querystring = require('querystring');
 var config = {
     apiUrl: 'clean-sprint-app.4thoffice.com',
-    authToken: 'Bearer ab861108-58a7-7e48-569c-9eece5a5e4b2'
+    authToken: 'Bearer 8596884b-cd3a-5c5c-42cf-08d668695c65'
 };
-
+var options = {
+    mode: 'text',
+    pythonPath: '/usr/bin/python',
+    pythonOptions: ['-u'],
+    scriptPath: __dirname+'/pythonScripts',
+    args: ['value1', 'value2', 'value3']
+};
+var PythonShell = require('python-shell');
+PythonShell.run('helloworld.py', options, (err, results) => {
+    if (err) throw err;
+    // results is an array consisting of messages collected during execution
+    console.log('results: %j', JSON.stringify(results[0]));
+});
 var nesty = require('./nest');
 var sendMailMessage = (email, title, content) => {
     var options = {
@@ -48,40 +60,46 @@ var sendMailMessage = (email, title, content) => {
     req.end();
 };
 var lastMessageByMe = '';
-var sendChatMessage = (email, content, cb) => {
+
+var sendChatMessageByEmail = (email, content, cb) => {
     lastMessageByMe = content;
     getUserId(email, (res) => {
-        console.log(res.Id);
-        var options = {
-            host: config.apiUrl,
-            path: '/api/post',
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/vnd.4thoffice.post-5.15+json',
-                'Accept': 'application/vnd.4thoffice.post-5.15+json',
-                'Authorization': config.authToken
-            }
-        };
-        var req = http.request(options, (res) => {
-            res.setEncoding('utf8');
-            res.on('data', (chunk) => {
-                //console.log(`BODY: ${chunk}`);
-            });
-            res.on('end', () => {
-                if (cb)cb();
-                console.log('No more data in response.')
-            })
-        });
-
-        req.write(JSON.stringify({
-                "Parent": {
-                    "Id": res.Id
-                },
-                "Text": content
-            }
-        ));
-        req.end();
+        sendChatMessageByFeedIdentity(res.Id, content, cb);
     })
+
+};
+var sendChatMessageByFeedIdentity = (feedIdentity, content, cb) => {
+    //console.log(res.Id);
+    var options = {
+        host: config.apiUrl,
+        path: '/api/post',
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/vnd.4thoffice.post-5.18+json',
+            'Accept': 'application/vnd.4thoffice.post-5.18+json',
+            'Authorization': config.authToken,
+            'X-Impersonate-User': '8a360d87-7ed7-4bea-8846-a807903d0e73'
+        }
+    };
+    var req = http.request(options, (res) => {
+        res.setEncoding('utf8');
+        res.on('data', (chunk) => {
+            console.log(`BODY: ${chunk}`);
+        });
+        res.on('end', (err, data) => {
+            if (cb)cb(data);
+            console.log('No more data in response.')
+        })
+    });
+
+    req.write(JSON.stringify({
+            "Parent": {
+                "Id": feedIdentity
+            },
+            "Text": content
+        }
+    ));
+    req.end();
 
 };
 var getUserId = (email, cb) => {
@@ -118,10 +136,9 @@ var getUserId = (email, cb) => {
     req.end();
 };
 var fetchMessages = (user) => {
-    console.log("Hey");
     var postData = querystring.stringify({
         'feedscope': 'ChatStream',
-        'feedidentity': 'A1_0efa529f54eb4d669d865e1da85c7166',
+        'feedidentity': 'A1_20f0a67d5ce841a1b409e6e98f76602d',
         'size': 10,
         'offset': 0
     });
@@ -145,16 +162,15 @@ var fetchMessages = (user) => {
         });
         res.on('end', () => {
             return parseCheckFor(JSON.parse(data));
-            console.log('No more data in response.')
         })
     });
 
     req.write(postData);
     req.end();
 };
-setInterval(function () {
-    fetchMessages('denkomanceski@gmail.com')
-}, 3000);
+// setInterval(function () {
+//     fetchMessages('denkomanceski@gmail.com')
+// }, 3000);
 var skip = false;
 var parseCheckFor = function (chunck) {
     var t = 0;
@@ -166,9 +182,14 @@ var parseCheckFor = function (chunck) {
                     skip = true;
                     checkAction(item.Post.Text, (content) => {
                         if (content.length > 0)
-                            sendChatMessage('denkomanceski@gmail.com', content, () => {
-                                skip = false;
-                            });
+                            // sendChatMessageByEmail('denkomanceski@gmail.com', content, () => {
+                            //     skip = false;
+                            // });
+                        sendChatMessageByFeedIdentity('A1_20f0a67d5ce841a1b409e6e98f76602d', content, () => {
+                            skip = false;
+                        });
+
+
                         else {
                             skip = false;
                         }
@@ -246,7 +267,11 @@ var cityNamesDictinary = [
     {name: 'ljubljana', code: 'lju'}
 ];
 //sendMailMessage('denkomanceski@gmail.com', 'Mofo', 'What the heck');
-//sendChatMessage('denkomanceski@gmail.com', "Testing mountains");
+sendChatMessageByFeedIdentity('A1_20f0a67d5ce841a1b409e6e98f76602d', "Hello test123", (data) => {
+    console.log(JSON.stringify(data));
+});
 
-
+getUserId('denkomanceski@gmail.com', (res) => {
+    console.log(JSON.stringify(res));
+})
 
