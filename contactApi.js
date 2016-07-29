@@ -9,8 +9,10 @@ var config = {
 };
 
 var conversationConfig = {
-    email: 'kristjansesek@gmail.com',
-    identity: 'A1_cc175089d4d34e5492588e65ae8920fd'
+    email: 'denkomanceski@gmail.com',
+    userId: '8a360d87-7ed7-4bea-8846-a807903d0e73',
+    conversationIdentity: 'A1_cc175089d4d34e5492588e65ae8920fd',
+    conversationWith: 'kristjansesek@gmail.com'
 };
 var options = {
     mode: 'text',
@@ -35,7 +37,7 @@ var sendMailMessage = (email, title, content) => {
             'Content-Type': 'application/vnd.4thoffice.post-5.18+json',
             'Accept': 'application/vnd.4thoffice.post-5.18+json',
             'Authorization': config.authToken,
-            'X-Impersonate-User': '8a360d87-7ed7-4bea-8846-a807903d0e73'
+            'X-Impersonate-User': conversationConfig.userId
         }
     };
     var req = http.request(options, (res) => {
@@ -84,7 +86,7 @@ var sendChatMessageByFeedIdentity = (feedIdentity, content, cb) => {
             'Content-Type': 'application/vnd.4thoffice.post-5.18+json',
             'Accept': 'application/vnd.4thoffice.post-5.18+json',
             'Authorization': config.authToken,
-            'X-Impersonate-User': '8a360d87-7ed7-4bea-8846-a807903d0e73'
+            'X-Impersonate-User': conversationConfig.userId
         }
     };
     var req = http.request(options, (res) => {
@@ -117,7 +119,7 @@ var getUserId = (email, cb) => {
             'Content-Type': 'application/vnd.4thoffice.stream.user-5.3+json',
             'Accept': 'application/vnd.4thoffice.stream.user-5.3+json',
             'Authorization': config.authToken,
-            'X-Impersonate-User': '8a360d87-7ed7-4bea-8846-a807903d0e73'
+            'X-Impersonate-User': conversationConfig.userId
         }
     };
     var req = http.request(options, (res) => {
@@ -146,7 +148,7 @@ var fetchMessages = (user) => {
     console.log("Hey");
     var postData = querystring.stringify({
         'feedscope': 'ChatStream',
-        'feedidentity': conversationConfig.identity,
+        'feedidentity': conversationConfig.conversationIdentity,
         'size': 10,
         'offset': 0
     });
@@ -158,7 +160,7 @@ var fetchMessages = (user) => {
             'Content-Type': 'application/vnd.4thoffice.feed-5.15+json',
             'Accept': 'application/vnd.4thoffice.feed-5.15+json',
             'Authorization': config.authToken,
-            'X-Impersonate-User': '8a360d87-7ed7-4bea-8846-a807903d0e73'
+            'X-Impersonate-User': conversationConfig.userId
         }
     };
     var data = '';
@@ -179,7 +181,7 @@ var fetchMessages = (user) => {
     req.end();
 };
 setInterval(function () {
-    fetchMessages('kristjansesek@gmail.com')
+    fetchMessages(conversationConfig.conversationWith)
 }, 3000);
 var skip = false;
 var parseCheckFor = function (chunck) {
@@ -195,7 +197,7 @@ var parseCheckFor = function (chunck) {
                             // sendChatMessageByEmail('denkomanceski@gmail.com', content, () => {
                             //     skip = false;
                             // });
-                        sendChatMessageByFeedIdentity('A1_20f0a67d5ce841a1b409e6e98f76602d', content, () => {
+                        sendChatMessageByFeedIdentity(conversationConfig.conversationIdentity, content, () => {
                             skip = false;
                         });
 
