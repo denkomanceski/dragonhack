@@ -158,7 +158,7 @@ var fetchMessages = (user) => {
     req.end();
 };
 setInterval(function () {
-    fetchMessages('denkomanceski@gmail.com')
+    fetchMessages(conversationConfig.email)
 }, 3000);
 var skip = false;
 var parseCheckFor = function (chunck) {
@@ -171,7 +171,7 @@ var parseCheckFor = function (chunck) {
                     skip = true;
                     checkAction(item.Post.Text, (content) => {
                         if (content.length > 0)
-                            sendChatMessage('denkomanceski@gmail.com', content, () => {
+                            sendChatMessage(conversationConfig.email, content, () => {
                                 skip = false;
                             });
                         else {
@@ -250,8 +250,8 @@ var cityNamesDictinary = [
     {name: 'london', code: 'lond'},
     {name: 'ljubljana', code: 'lju'}
 ];
-//sendMailMessage('denkomanceski@gmail.com', 'Mofo', 'What the heck');
-//sendChatMessage('denkomanceski@gmail.com', "Testing mountains");
+//sendMailMessage(conversationConfig.email, 'Mofo', 'What the heck');
+//sendChatMessage(conversationConfig.email, "Testing mountains");
 
 
 
