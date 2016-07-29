@@ -1,2 +1,5 @@
 .idea
 node_modules
+# python virtualenvs
+venv
+venv2
