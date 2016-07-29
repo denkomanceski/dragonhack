@@ -5,7 +5,12 @@ var http = require("http");
 var querystring = require('querystring');
 var config = {
     apiUrl: 'clean-sprint-app.4thoffice.com',
-    authToken: 'Bearer 8596884b-cd3a-5c5c-42cf-08d668695c65'
+    authToken: 'Bearer c9f52315-8d57-f401-5f16-d77cc9180418'
+};
+
+var conversationConfig = {
+    email: 'kristjansesek@gmail.com',
+    identity: 'A1_5b026989dc734be29cab0782aadfa5dc'
 };
 var options = {
     mode: 'text',
@@ -136,9 +141,10 @@ var getUserId = (email, cb) => {
     req.end();
 };
 var fetchMessages = (user) => {
+    console.log("Hey");
     var postData = querystring.stringify({
         'feedscope': 'ChatStream',
-        'feedidentity': 'A1_20f0a67d5ce841a1b409e6e98f76602d',
+        'feedidentity': conversationConfig.identity,
         'size': 10,
         'offset': 0
     });
@@ -162,6 +168,7 @@ var fetchMessages = (user) => {
         });
         res.on('end', () => {
             return parseCheckFor(JSON.parse(data));
+            console.log('No more data in response.')
         })
     });
 
