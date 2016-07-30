@@ -5,14 +5,28 @@ var http = require("http");
 var querystring = require('querystring');
 var config = {
     apiUrl: 'clean-sprint-app.4thoffice.com',
-    authToken: 'Bearer c9f52315-8d57-f401-5f16-d77cc9180418'
+    authToken: 'Bearer a9ac4015-e8ba-8dcf-642a-e3fe58e1b57f'
 };
 
 var conversationConfig = {
-    email: 'kristjansesek@gmail.com',
-    identity: 'A1_5b026989dc734be29cab0782aadfa5dc'
+    email: 'denkomanceski@gmail.com',
+    userId: '8a360d87-7ed7-4bea-8846-a807903d0e73',
+    conversationIdentity: 'A1_cc175089d4d34e5492588e65ae8920fd',
+    conversationWith: 'kristjansesek@gmail.com'
 };
-
+var options = {
+    mode: 'text',
+    pythonPath: '/usr/bin/python',
+    pythonOptions: ['-u'],
+    scriptPath: __dirname+'/pythonScripts',
+    args: ['value1', 'value2', 'value3']
+};
+var PythonShell = require('python-shell');
+PythonShell.run('helloworld.py', options, (err, results) => {
+    if (err) throw err;
+    // results is an array consisting of messages collected during execution
+    console.log('results: %j', JSON.stringify(results[0]));
+});
 var nesty = require('./nest');
 var sendMailMessage = (email, title, content) => {
     var options = {
@@ -20,9 +34,10 @@ var sendMailMessage = (email, title, content) => {
         path: '/api/post',
         method: 'POST',
         headers: {
-            'Content-Type': 'application/vnd.4thoffice.post-5.15+json',
-            'Accept': 'application/vnd.4thoffice.post-5.15+json',
-            'Authorization': config.authToken
+            'Content-Type': 'application/vnd.4thoffice.post-5.18+json',
+            'Accept': 'application/vnd.4thoffice.post-5.18+json',
+            'Authorization': config.authToken,
+            'X-Impersonate-User': conversationConfig.userId
         }
     };
     var req = http.request(options, (res) => {
@@ -53,40 +68,46 @@ var sendMailMessage = (email, title, content) => {
     req.end();
 };
 var lastMessageByMe = '';
-var sendChatMessage = (email, content, cb) => {
+
+var sendChatMessageByEmail = (email, content, cb) => {
     lastMessageByMe = content;
     getUserId(email, (res) => {
-        console.log(res.Id);
-        var options = {
-            host: config.apiUrl,
-            path: '/api/post',
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/vnd.4thoffice.post-5.15+json',
-                'Accept': 'application/vnd.4thoffice.post-5.15+json',
-                'Authorization': config.authToken
-            }
-        };
-        var req = http.request(options, (res) => {
-            res.setEncoding('utf8');
-            res.on('data', (chunk) => {
-                //console.log(`BODY: ${chunk}`);
-            });
-            res.on('end', () => {
-                if (cb)cb();
-                console.log('No more data in response.')
-            })
-        });
-
-        req.write(JSON.stringify({
-                "Parent": {
-                    "Id": res.Id
-                },
-                "Text": content
-            }
-        ));
-        req.end();
+        sendChatMessageByFeedIdentity(res.Id, content, cb);
     })
+
+};
+var sendChatMessageByFeedIdentity = (feedIdentity, content, cb) => {
+    //console.log(res.Id);
+    var options = {
+        host: config.apiUrl,
+        path: '/api/post',
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/vnd.4thoffice.post-5.18+json',
+            'Accept': 'application/vnd.4thoffice.post-5.18+json',
+            'Authorization': config.authToken,
+            'X-Impersonate-User': conversationConfig.userId
+        }
+    };
+    var req = http.request(options, (res) => {
+        res.setEncoding('utf8');
+        res.on('data', (chunk) => {
+            console.log(`BODY: ${chunk}`);
+        });
+        res.on('end', (err, data) => {
+            if (cb)cb(data);
+            console.log('No more data in response.')
+        })
+    });
+
+    req.write(JSON.stringify({
+            "Parent": {
+                "Id": feedIdentity
+            },
+            "Text": content
+        }
+    ));
+    req.end();
 
 };
 var getUserId = (email, cb) => {
@@ -97,7 +118,8 @@ var getUserId = (email, cb) => {
         headers: {
             'Content-Type': 'application/vnd.4thoffice.stream.user-5.3+json',
             'Accept': 'application/vnd.4thoffice.stream.user-5.3+json',
-            'Authorization': config.authToken
+            'Authorization': config.authToken,
+            'X-Impersonate-User': conversationConfig.userId
         }
     };
     var req = http.request(options, (res) => {
@@ -126,7 +148,7 @@ var fetchMessages = (user) => {
     console.log("Hey");
     var postData = querystring.stringify({
         'feedscope': 'ChatStream',
-        'feedidentity': conversationConfig.identity,
+        'feedidentity': conversationConfig.conversationIdentity,
         'size': 10,
         'offset': 0
     });
@@ -137,7 +159,8 @@ var fetchMessages = (user) => {
         headers: {
             'Content-Type': 'application/vnd.4thoffice.feed-5.15+json',
             'Accept': 'application/vnd.4thoffice.feed-5.15+json',
-            'Authorization': config.authToken
+            'Authorization': config.authToken,
+            'X-Impersonate-User': conversationConfig.userId
         }
     };
     var data = '';
@@ -158,7 +181,7 @@ var fetchMessages = (user) => {
     req.end();
 };
 setInterval(function () {
-    fetchMessages(conversationConfig.email)
+    fetchMessages(conversationConfig.conversationWith)
 }, 3000);
 var skip = false;
 var parseCheckFor = function (chunck) {
@@ -171,9 +194,14 @@ var parseCheckFor = function (chunck) {
                     skip = true;
                     checkAction(item.Post.Text, (content) => {
                         if (content.length > 0)
-                            sendChatMessage(conversationConfig.email, content, () => {
-                                skip = false;
-                            });
+                            // sendChatMessageByEmail('denkomanceski@gmail.com', content, () => {
+                            //     skip = false;
+                            // });
+                        sendChatMessageByFeedIdentity(conversationConfig.conversationIdentity, content, () => {
+                            skip = false;
+                        });
+
+
                         else {
                             skip = false;
                         }
@@ -250,8 +278,13 @@ var cityNamesDictinary = [
     {name: 'london', code: 'lond'},
     {name: 'ljubljana', code: 'lju'}
 ];
-//sendMailMessage(conversationConfig.email, 'Mofo', 'What the heck');
-//sendChatMessage(conversationConfig.email, "Testing mountains");
+sendChatMessageByEmail('kristjansesek@gmail.com', "test123");
+//sendChatMessageByFeedIdentity('A1_cc175089d4d34e5492588e65ae8920fd','denkomanceski@gmail.com');
+// sendChatMessageByFeedIdentity('A1_20f0a67d5ce841a1b409e6e98f76602d', "Hello test123", (data) => {
+//     console.log(JSON.stringify(data));
+// });
 
-
+getUserId('denkomanceski@gmail.com', (res) => {
+    console.log(JSON.stringify(res));
+})
 
