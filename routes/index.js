@@ -86,7 +86,7 @@ router.get('/actionableResource/:actionableResourceId', (req, res) => {
                 "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
             },
             {
-                "ActionType": "Negative",
+                "ActionType": "Positive",
                 "Name": "Bye",
                 "Id": "turnmeoff",
                 "$type": "ActionFinishWorkflow_18",
