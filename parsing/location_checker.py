@@ -1,9 +1,16 @@
-import mmap
+"""Location parsing."""
+import re
 
 
-def check(blabla):
-    """Check for blabla in London street file."""
-    f = open('/home/chris/Downloads/city_street_names/london.osm.streets.txt')
-    s = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
-    if s.find('blabla') != -1:
-        return 'true'
+def findWholeWord(word):
+    """Regex to find whole word from string."""
+    return re.compile(r'\b({0})\b'.format(word), flags=re.IGNORECASE).search
+
+london_file = '/home/chris/Downloads/city_street_names/london.osm.streets.txt'
+
+
+def check(word, file_name=london_file):
+    """Check for word in London street file."""
+    file = open(file_name)
+    if findWholeWord(word)(file.read()):
+        print True
