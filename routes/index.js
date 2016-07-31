@@ -7,7 +7,7 @@ router.get('/actionableResource/availability', (req, res) => {
     var obj = {
         '$type': 'ActionableResourceAvailability_20',
         'Mode': 'Action',
-        'ActionableResourceId': '12345'
+        'ActionableResourceId': '1234567'
     };
     res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.15+json');
     res.send(obj)
