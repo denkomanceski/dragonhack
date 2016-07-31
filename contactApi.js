@@ -243,15 +243,16 @@ var checkAction = (action, cb) => {
     else if (action.toLowerCase().indexOf('to go from') > -1) {
         lastActionCode = 1;
         lastActionText = action;
-        cb(checkCities(action))
+        cb(`I noticed you plan to travel. Do you want me to check for available flights?' ${checkCities(action)}`)
     }
     else if(action.toLowerCase().indexOf('yes') > -1){
         switch(lastActionCode){
             case 1:
-                var spawn = require('child_process').spawn
-                spawn('open', [checkCities(lastActionText)]);
+                // var spawn = require('child_process').spawn
+                // spawn('open', [checkCities(lastActionText)]);
                 lastActionCode = '';
                 lastActionText = '';
+                cb(checkCities(lastActionText))
                 break;
         }
         cb('')
