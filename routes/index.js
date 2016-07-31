@@ -81,14 +81,14 @@ router.get('/actionableResource/:actionableResourceId', (req, res) => {
             {
                 "ActionType": "Positive",
                 "Name": "Show me next thing",
-                "Id": "271f759b-2d70-432e-b2da-6cf2b9bd02b0",
+                "Id": "turnmeon",
                 "$type": "ActionNextStep_18",
                 "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
             },
             {
                 "ActionType": "Negative",
                 "Name": "Bye",
-                "Id": "858a1f6c-dc42-4ebd-a095-986a1e076e25",
+                "Id": "turnmeoff",
                 "$type": "ActionFinishWorkflow_18",
                 "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
             }
@@ -99,6 +99,10 @@ router.get('/actionableResource/:actionableResourceId', (req, res) => {
 });
 router.post('/action', (req, res) => {
     console.log("post request came", JSON.stringify(req.body));
+    if(req.body.ActionList[0].Id == 'turnmeon') {
+        var spawn = require('child_process').spawn
+        spawn('open', [checkCities(lastActionText)]);
+    }
     res.send({ok: true})
 });
 
