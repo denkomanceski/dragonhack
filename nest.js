@@ -3,7 +3,7 @@
  */
 var nest = require('unofficial-nest-api');
 var setTemperature = function(temperature){
-    nest.login('denkomanceski@gmail.com', 'Diamondboy456!!', function (err, data) {
+    nest.login('denkomanceski@gmail.com', 'asd!!', function (err, data) {
         if (err) {
             console.log(err.message);
             process.exit(1);

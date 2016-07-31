@@ -22,7 +22,7 @@ var externalAPIController = require('./controllers/externalAPIController');
 
 var ACTION = {
     SKYSCANNER: 0,
-    BOOKING: 1,
+    AIRBNB: 1,
     GOOGLE_CALENDAR: 2,
     UBER: 3
 };
@@ -248,6 +248,7 @@ var processAction = (action, cb) => {
                 cb('A meeting on ' + lastActionText + ' added to calendar.');
                 break;
         }
+        //https://www.airbnb.co.uk/s/${cityName}?guests=1&checkin=31-07-2016&checkout=30-08-2016&s_tag=1nkLc9tK
         // clear last action
         lastActionCode = '';
         lastActionText = '';
