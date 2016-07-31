@@ -79,7 +79,7 @@ router.get('/actionableResource/:actionableResourceId', (req, res) => {
         ],
         "ActionList": [
             {
-                "ActionType": "Positive",
+                "ActionType": "Negative",
                 "Name": "Show me next thing",
                 "Id": "turnmeon",
                 "$type": "ActionNextStep_18",
