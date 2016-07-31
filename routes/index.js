@@ -98,7 +98,7 @@ router.get('/actionableResource/:actionableResourceId', (req, res) => {
     res.send(obj)
 });
 router.post('/action', (req, res) => {
-    console.log("request came", JSON.stringify(req.body));
+    console.log("post request came", JSON.stringify(req.body));
     res.send({ok: true})
 });
 
