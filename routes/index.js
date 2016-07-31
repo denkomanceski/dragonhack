@@ -10,7 +10,7 @@ router.get('/actionableResource/availability', (req, res) => {
     //     'ActionableResourceId': '1234567'
     // };
     var actionableResourceId = req.query.contextId != null ? `LondonChallengeExample.${req.query.contextType}.${req.query.contextId}`: `LondonChallengeExample.${req.query.contextType}`
-    console.log(`Sending ${actionableResourceId} ...`);
+    console.log(`Sending ${req.query.contextId != null} ...`);
     var obj = {
         "ActionableResourceId": actionableResourceId,
         "Mode": "Action",
