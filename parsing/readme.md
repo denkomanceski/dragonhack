@@ -10,3 +10,6 @@ Install requirements:
 `pip install -r requirements.txt`
 
 Install nltk modules within an interactive Python shell by calling: `nltk.download("book")`
+
+Download spacy English grammar (500MB):
+`python -m spacy.en.download`
