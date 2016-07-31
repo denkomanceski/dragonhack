@@ -14,7 +14,7 @@ router.get('/actionableResource/availability', (req, res) => {
         "Mode": "None",
         "$type": "ActionableResourceAvailability_20"
     };
-    res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.17+json');
+    res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.18+json');
     res.send(obj)
 });
 router.get('/actionableResource', (req, res) => {
@@ -28,11 +28,11 @@ router.get('/actionableResource', (req, res) => {
     // var obj = {
     //     'DescriptionList': description_list,
     //     'ActionList': actions,
-    //     '$type': 'ActionableResource_22',
+    //     '$type': 'ActionableResource_21',
     //     'Id': uuid.v4()
     // };
     var obj = {
-        "$type": "ActionableResource_22",
+        "$type": "ActionableResource_21",
         "Id": "8a360d87-7ed7-4bea-8846-a807903d0e73",
         "DescriptionList": [
             "Hello and welcome on stream list"
@@ -54,7 +54,7 @@ router.get('/actionableResource', (req, res) => {
             }
         ]
     };
-    res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.17+json')
+    res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.18+json')
     res.send(obj)
 });
 router.get('/actionableResource/:actionableResourceId', (req, res) => {
@@ -68,11 +68,11 @@ router.get('/actionableResource/:actionableResourceId', (req, res) => {
     // var obj = {
     //     'DescriptionList': description_list,
     //     'ActionList': actions,
-    //     '$type': 'ActionableResource_22',
+    //     '$type': 'ActionableResource_21',
     //     'Id': uuid.v4()
     // };
     var obj = {
-        "$type": "ActionableResource_22",
+        "$type": "ActionableResource_21",
         "Id": "8a360d87-7ed7-4bea-8846-a807903d0e73",
         "DescriptionList": [
             "Hello and welcome on stream list"
@@ -94,7 +94,7 @@ router.get('/actionableResource/:actionableResourceId', (req, res) => {
             }
         ]
     };
-    res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.17+json')
+    res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.18+json')
     res.send(obj)
 });
 router.post('/action', (req, res) => {
