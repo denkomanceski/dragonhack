@@ -11,8 +11,8 @@ var config = {
 var conversationConfig = {
     email: 'denkomanceski@gmail.com',
     userId: '8a360d87-7ed7-4bea-8846-a807903d0e73',
-    conversationIdentity: 'A1_cc175089d4d34e5492588e65ae8920fd',
-    conversationWith: 'kristjansesek@gmail.com'
+    conversationIdentity: 'A1_6704727b30ea44349af7e97dcfdb34f9',
+    conversationWith: 'uzupan@marg.si'
 };
 
 var nesty = require('./nest');
@@ -247,7 +247,7 @@ var checkAction = (action, cb) => {
     else if (action.toLowerCase().indexOf('to go from') > -1) {
         lastActionCode = ACTION.SKYSCANNER;
         lastActionText = action;
-        cb('Do you want me to redirect you to skyscanner ?')
+        cb(checkCities(action))
     }
     else if (action.toLowerCase().indexOf('yes') > -1) {
         switch (lastActionCode) {
