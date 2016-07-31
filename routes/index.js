@@ -99,11 +99,31 @@ router.get('/actionableResource/:actionableResourceId', (req, res) => {
 });
 router.post('/action', (req, res) => {
     console.log("post request came", JSON.stringify(req.body));
-    if(req.body.ActionList[0].Id == 'turnmeon') {
-        var spawn = require('child_process').spawn
-        spawn('open', [checkCities(lastActionText)]);
-    }
-    res.send({ok: true})
+    var obj = {
+        "$type": "ActionableResource_21",
+        "Id": "8a360d87-7ed7-4bea-8846-a807903d0e73",
+        "DescriptionList": [
+            "Hello and welcome on stream list"
+        ],
+        "ActionList": [
+            {
+                "ActionType": "Positive",
+                "Name": "Show me next thing",
+                "Id": "turnmeon",
+                "$type": "ActionNextStep_18",
+                "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
+            },
+            {
+                "ActionType": "Negative",
+                "Name": "Bye",
+                "Id": "turnmeoff",
+                "$type": "ActionFinishWorkflow_18",
+                "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
+            }
+        ]
+    };
+    res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.17+json');
+    res.send(obj);
 });
 
 module.exports = router;
