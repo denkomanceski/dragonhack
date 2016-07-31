@@ -43,14 +43,14 @@ router.get('/actionableResource', (req, res) => {
                 "Name": "Show me next thing",
                 "Id": "271f759b-2d70-432e-b2da-6cf2b9bd02b0",
                 "$type": "ActionNextStep_18",
-                "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
+                "AssistantEmail": "denkomanceski@gmail.com"
             },
             {
                 "ActionType": "Positive",
                 "Name": "Bye",
                 "Id": "858a1f6c-dc42-4ebd-a095-986a1e076e25",
                 "$type": "ActionFinishWorkflow_18",
-                "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
+                "AssistantEmail": "denkomanceski@gmail.com"
             }
         ]
     };
@@ -83,14 +83,14 @@ router.get('/actionableResource/:actionableResourceId', (req, res) => {
                 "Name": "Show me next thing",
                 "Id": "271f759b-2d70-432e-b2da-6cf2b9bd02b0",
                 "$type": "ActionNextStep_18",
-                "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
+                "AssistantEmail": "denkomanceski@gmail.com"
             },
             {
                 "ActionType": "Positive",
                 "Name": "Bye",
                 "Id": "858a1f6c-dc42-4ebd-a095-986a1e076e25",
                 "$type": "ActionFinishWorkflow_18",
-                "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
+                "AssistantEmail": "denkomanceski@gmail.com"
             }
         ]
     };
