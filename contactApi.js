@@ -245,6 +245,7 @@ var checkAction = (action, cb) => {
         lastActionText = action;
         cb(`I noticed you plan to travel. Do you want me to check for available flights?' ${checkCities(action)}`)
     }
+
     else if(action.toLowerCase().indexOf('yes') > -1){
         switch(lastActionCode){
             case 1:
