@@ -194,12 +194,12 @@ var parseCheckFor = function (chunck) {
                     skip = true;
                     checkAction(item.Post.Text, (content) => {
                         if (content.length > 0)
-                            // sendChatMessageByEmail('denkomanceski@gmail.com', content, () => {
-                            //     skip = false;
-                            // });
-                        sendChatMessageByFeedIdentity(conversationConfig.conversationIdentity, content, () => {
-                            skip = false;
-                        });
+                        // sendChatMessageByEmail('denkomanceski@gmail.com', content, () => {
+                        //     skip = false;
+                        // });
+                            sendChatMessageByFeedIdentity(conversationConfig.conversationIdentity, content, () => {
+                                skip = false;
+                            });
 
 
                         else {
@@ -216,16 +216,19 @@ var parseCheckFor = function (chunck) {
 
 var volume = require('./volume');
 var lastActionCode, lastActionText;
+
+// external python scripts are running asynchronously, so we always wait until they finish, before we continue to
+// process new data
+var externalServiceRunning = false;
+
 var checkAction = (action, cb) => {
-    // if(action == 'yes'){
-    //     if(!lastActionCode)
-    //         cb('Yes what ?')
-    // }
-    if (action.indexOf('coming home') > -1) {
-        nesty.setTemperature(25);
-        cb('Great! The current temperature here is 15 degree, but by the time you come home I will set it to 25');
+
+    if (externalServiceRunning) {
+        return;
     }
-    else if (action.indexOf('volume up') > -1) {
+
+
+    if (action.indexOf('volume up') > -1) {
         volume.setVolume(100, (success) => {
             cb("Okay, I've increased the volume for you to 100%. Enjoy your music!");
         });
@@ -242,18 +245,18 @@ var checkAction = (action, cb) => {
         cb('I am feeling great, I have you')
     }
     else if (action.toLowerCase().indexOf('to go from') > -1) {
-        lastActionCode = Action.SKYSCANNER;
+        lastActionCode = ACTION.SKYSCANNER;
         lastActionText = action;
         cb('Do you want me to redirect you to skyscanner ?')
     }
     else if (action.toLowerCase().indexOf('yes') > -1) {
         switch (lastActionCode) {
-            case action.SKYSCANNER:
+            case ACTION.SKYSCANNER:
                 var spawn = require('child_process').spawn;
                 spawn('open', [checkCities(lastActionText)]);
                 cb('');
                 break;
-            case action.GOOGLE_CALENDAR:
+            case ACTION.GOOGLE_CALENDAR:
                 cb('A meeting on ' + lastActionText + ' added to calendar.');
                 break;
         }
@@ -262,17 +265,24 @@ var checkAction = (action, cb) => {
         lastActionCode = '';
         lastActionText = '';
     }
-    else if (action.toLowerCase().indexOf('meet')) {
+    else if (action.toLowerCase().indexOf('meet') > -1) {
+
+        externalServiceRunning = true;
+
         // try to extract the date
-        extractionController.extractDateTime.extractDateTime(action, (err, results) => {
+        extractionController.extractDateTime(action, (err, results) => {
             if (err) throw err;
-            lastActionCode = action.GOOGLE_CALENDAR;
-            cb('I noticed you are planning a meeting on ' + results[0] + '. Would you like me to add a meeting to calendar?');
+            lastActionCode = ACTION.SKYSCANNER;
+
+            var lastMessage = 'I noticed you are planning a meeting on ' + results[0]
+                + '. Would you like me to add a meeting to calendar and send invitation?';
+            lastMessageByMe = lastMessage;
+
+            cb(lastMessage);
             lastActionText = results[0];
+
+            externalServiceRunning = false;
         });
-    }
-    else {
-        cb('');
     }
 };
 
