@@ -9,8 +9,9 @@ router.get('/actionableResource/availability', (req, res) => {
     //     'Mode': 'Action',
     //     'ActionableResourceId': '1234567'
     // };
+    var actionableResourceId = req.query.contextId ? `LondonChallengeExample.${req.query.contextType}.${req.query.contextId}`: `LondonChallengeExample.${req.query.contextType}`
     var obj = {
-        "ActionableResourceId": `LondonChallengeExample.${req.query.contextType}`,
+        "ActionableResourceId": actionableResourceId,
         "Mode": "Action",
         "$type": "ActionableResourceAvailability_20"
     };
