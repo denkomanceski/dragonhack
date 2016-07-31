@@ -3,14 +3,14 @@ var router = express.Router();
 var uuid = require('node-uuid');
 /* GET home page. */
 router.get('/actionableResource/availability', (req, res) => {
-    console.log("request came", JSON.stringify(req.params));
     // var obj = {
     //     '$type': 'ActionableResourceAvailability_20',
     //     'Mode': 'Action',
     //     'ActionableResourceId': '1234567'
     // };
+    console.log(JSON.stringify(req.query));
     var actionableResourceId = req.query.contextId != null ? `LondonChallengeExample.${req.query.contextType}.${req.query.contextId}`: `LondonChallengeExample.${req.query.contextType}`
-    console.log(`Sending... ${req.query.contextId != null} ...`);
+    console.log(`Sending...is ${req.query.contextId} ...`);
     var obj = {
         "ActionableResourceId": actionableResourceId,
         "Mode": "Action",
