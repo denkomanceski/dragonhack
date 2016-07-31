@@ -232,7 +232,7 @@ var processAction = (action, cb) => {
     else if (action.indexOf('to go from') > -1) {
         lastActionCode = ACTION.SKYSCANNER;
         lastActionText = action;
-        cb(`I noticed you plan to travel. Do you want me to check for available flights?' ${checkCities(action)}`)
+        cb('I noticed you plan to travel. Do you want me to check for available flights?')
     }
 
     else if(action.indexOf('yes') > -1){
@@ -240,9 +240,9 @@ var processAction = (action, cb) => {
             case ACTION.SKYSCANNER:
                 // var spawn = require('child_process').spawn
                 // spawn('open', [checkCities(lastActionText)]);
+                cb(checkCities(lastActionText));
                 lastActionCode = '';
                 lastActionText = '';
-                cb(checkCities(lastActionText));
                 break;
             case ACTION.GOOGLE_CALENDAR:
                 cb('A meeting on ' + lastActionText + ' added to calendar.');
