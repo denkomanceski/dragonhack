@@ -105,22 +105,22 @@ router.post('/action', (req, res) => {
         "DescriptionList": [
             "I have nothing for you mate"
         ],
-        // "ActionList": [
-        //     {
-        //         "ActionType": "Positive",
-        //         "Name": "Show me next thing",
-        //         "Id": "turnmeon",
-        //         "$type": "ActionNextStep_18",
-        //         "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
-        //     },
-        //     {
-        //         "ActionType": "Negative",
-        //         "Name": "Bye",
-        //         "Id": "turnmeoff",
-        //         "$type": "ActionFinishWorkflow_18",
-        //         "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
-        //     }
-        // ]
+        "ActionList": [
+            // {
+            //     "ActionType": "Positive",
+            //     "Name": "Show me next thing",
+            //     "Id": "turnmeon",
+            //     "$type": "ActionNextStep_18",
+            //     "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
+            // },
+            // {
+            //     "ActionType": "Negative",
+            //     "Name": "Bye",
+            //     "Id": "turnmeoff",
+            //     "$type": "ActionFinishWorkflow_18",
+            //     "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
+            // }
+        ]
     };
     res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.17+json');
     res.send(obj);
