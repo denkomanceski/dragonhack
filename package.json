@@ -12,8 +12,10 @@
     "express": "~4.13.1",
     "jade": "~1.11.0",
     "morgan": "~1.6.1",
+    "node-uuid": "^1.4.7",
     "python-shell": "^0.4.0",
     "serve-favicon": "~2.3.0",
-    "unofficial-nest-api": "^0.1.4"
+    "unofficial-nest-api": "^0.1.4",
+    "uuid": "latest"
   }
 }
