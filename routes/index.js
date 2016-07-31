@@ -4,10 +4,15 @@ var uuid = require('node-uuid');
 /* GET home page. */
 router.get('/actionableResource/availability', (req, res) => {
     console.log("request came", JSON.stringify(req.params));
+    // var obj = {
+    //     '$type': 'ActionableResourceAvailability_20',
+    //     'Mode': 'Action',
+    //     'ActionableResourceId': '1234567'
+    // };
     var obj = {
-        '$type': 'ActionableResourceAvailability_20',
-        'Mode': 'Action',
-        'ActionableResourceId': '1234567'
+        "ActionableResourceId": "LondonChallengeExample.None",
+        "Mode": "None",
+        "$type": "ActionableResourceAvailability_20"
     };
     res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.15+json');
     res.send(obj)
@@ -28,7 +33,7 @@ router.get('/actionableResource', (req, res) => {
     // };
     var obj = {
         "$type": "ActionableResource_22",
-        "Id": "d3921a15-41d0-48bd-afa3-5f075bf05228",
+        "Id": "c6af1d27-eb34-4c73-b7db-1e355a7f2e1a",
         "DescriptionList": [
             "Hello and welcome on stream list"
         ],
@@ -36,14 +41,14 @@ router.get('/actionableResource', (req, res) => {
             {
                 "ActionType": "Positive",
                 "Name": "Show me next thing",
-                "Id": "264d0634-4111-403d-8ca0-12090eca1c4a",
+                "Id": "271f759b-2d70-432e-b2da-6cf2b9bd02b0",
                 "$type": "ActionNextStep_18",
                 "AssistantEmail": "1cd65bd6-fd85-4a80-8e1c-3263c0793bdf@4thoffice.com"
             },
             {
                 "ActionType": "Positive",
                 "Name": "Bye",
-                "Id": "947c007d-26cd-44e2-96b6-9170613c2dc2",
+                "Id": "858a1f6c-dc42-4ebd-a095-986a1e076e25",
                 "$type": "ActionFinishWorkflow_18",
                 "AssistantEmail": "1cd65bd6-fd85-4a80-8e1c-3263c0793bdf@4thoffice.com"
             }
@@ -54,17 +59,40 @@ router.get('/actionableResource', (req, res) => {
 });
 router.get('/actionableResource/:actionableResourceId', (req, res) => {
     console.log("request came", JSON.stringify(req.params));
-    var assistant_chat_bubble = 'Hello and welcome on stream list'
-
-    var next_step = {name: 'Show me next thing', type: 'ActionNextStep_18'}
-    var close_dialog = {name: 'Bye', type: 'ActionFinishWorkflow_18'}
-    var actions = [next_step, close_dialog]
-    var description_list = [assistant_chat_bubble]
+    // var assistant_chat_bubble = 'Hello and welcome on stream list'
+    //
+    // var next_step = {name: 'Show me next thing', type: 'ActionNextStep_18'}
+    // var close_dialog = {name: 'Bye', type: 'ActionFinishWorkflow_18'}
+    // var actions = [next_step, close_dialog]
+    // var description_list = [assistant_chat_bubble]
+    // var obj = {
+    //     'DescriptionList': description_list,
+    //     'ActionList': actions,
+    //     '$type': 'ActionableResource_22',
+    //     'Id': uuid.v4()
+    // };
     var obj = {
-        'DescriptionList': description_list,
-        'ActionList': actions,
-        '$type': 'ActionableResource_22',
-        'Id': uuid.v4()
+        "$type": "ActionableResource_22",
+        "Id": "c6af1d27-eb34-4c73-b7db-1e355a7f2e1a",
+        "DescriptionList": [
+            "Hello and welcome on stream list"
+        ],
+        "ActionList": [
+            {
+                "ActionType": "Positive",
+                "Name": "Show me next thing",
+                "Id": "271f759b-2d70-432e-b2da-6cf2b9bd02b0",
+                "$type": "ActionNextStep_18",
+                "AssistantEmail": "1cd65bd6-fd85-4a80-8e1c-3263c0793bdf@4thoffice.com"
+            },
+            {
+                "ActionType": "Positive",
+                "Name": "Bye",
+                "Id": "858a1f6c-dc42-4ebd-a095-986a1e076e25",
+                "$type": "ActionFinishWorkflow_18",
+                "AssistantEmail": "1cd65bd6-fd85-4a80-8e1c-3263c0793bdf@4thoffice.com"
+            }
+        ]
     };
     res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.15+json')
     res.send(obj)
