@@ -3,11 +3,15 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/actionableResource/availability', (req, res) => {
-  console.log("request came", JSON.stringify(req.params.query));
+  console.log("request came", JSON.stringify(req.params));
   res.send({ok: true})
 });
 router.get('/actionableResource', (req, res) => {
   console.log("request came");
+  res.send({ok: true})
+});
+router.get('/actionableResource/:actionableResourceId', (req, res) => {
+  console.log("request came", JSON.stringify(req.params));
   res.send({ok: true})
 });
 router.post('/action', (req, res) => {
