@@ -4,4 +4,6 @@ node_modules
 venv
 venv2
 # file lock
-.*~
+*~
+#
+*.pyc
