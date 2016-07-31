@@ -10,7 +10,7 @@ router.get('/actionableResource/availability', (req, res) => {
     //     'ActionableResourceId': '1234567'
     // };
     var obj = {
-        "ActionableResourceId": "test.None",
+        "ActionableResourceId": "LondonChallengeExample.streamlistimportant.null",
         "Mode": "None",
         "$type": "ActionableResourceAvailability_20"
     };
