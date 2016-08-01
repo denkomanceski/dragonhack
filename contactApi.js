@@ -145,7 +145,7 @@ var getUserId = (email, cb) => {
     }));
     req.end();
 };
-var fetchMessages = (user) => {
+var fetchMessages = () => {
     var postData = querystring.stringify({
         'feedscope': 'ChatStream',
         'feedidentity': conversationConfig.conversationIdentity,
@@ -173,6 +173,7 @@ var fetchMessages = (user) => {
         });
         res.on('end', () => {
             return parseAction(JSON.parse(data));
+            console.log(JSON.stringify(data));
             logMsg('No more data in response.');
         })
     });
@@ -180,11 +181,26 @@ var fetchMessages = (user) => {
     req.write(postData);
     req.end();
 };
-setInterval(function () {
-    fetchMessages(conversationConfig.conversationWith)
-}, 3000);
 
+var interval;
+function startPolling(conversationIdentity){
+    console.log(`Changing polling identity to: ${conversationIdentity}`);
+    lastActionCode = '';
+    lastActionContent = '';
+    lastProcessedMessage = '';
+    if(interval){
+        clearInterval(interval);
+    }
+    if(conversationIdentity){
+        conversationConfig.conversationIdentity = conversationIdentity;
+    }
+    interval = setInterval(function () {
+        console.log("??");
+        fetchMessages()
+    }, 3000);
+}
 var parseAction = function (chunk) {
+    console.log("Parsing...", JSON.stringify(chunk));
     var newParsedMessage = utils.replaceBreakWithNewline(_.get(chunk, 'DiscussionListPage.DiscussionList[0].Post.Text'));
     if (newParsedMessage && newParsedMessage != lastProcessedMessage) {
         // process new parsed message
@@ -310,7 +326,7 @@ var processAction = (action, cb) => {
 // });
 
 getUserId('denkomanceski@gmail.com', (res) => {
-    logMsg(JSON.stringify(res));
+    console.log(JSON.stringify(res), "RESSS...");;
 });
 
 var logMsg = function (content) {
@@ -318,3 +334,5 @@ var logMsg = function (content) {
         console.log(content);
     }
 };
+
+exports.startPolling = startPolling;

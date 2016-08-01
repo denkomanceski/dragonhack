@@ -2,7 +2,8 @@ var express = require('express');
 var router = express.Router();
 var uuid = require('node-uuid');
 var passport = require('../calendar').passport;
-
+var startPolling = require('../contactApi').startPolling;
+startPolling();
 /* GET home page. */
 router.get('/actionableResource/availability', (req, res) => {
     // var obj = {
@@ -11,14 +12,16 @@ router.get('/actionableResource/availability', (req, res) => {
     //     'ActionableResourceId': '1234567'
     // };
     console.log(JSON.stringify(req.query));
-    var actionableResourceId = req.query.contextId != 'null' ? `LondonChallengeExample.${req.query.contextType}.${req.query.contextId}`: `LondonChallengeExample.${req.query.contextType}`
+    if (req.query.contextId)
+        startPolling(req.query.contextId);
+    var actionableResourceId = req.query.contextId != 'null' ? `LondonChallengeExample.${req.query.contextType}.${req.query.contextId}` : `LondonChallengeExample.${req.query.contextType}`
     console.log(`Sending...is ${req.query.contextId != 'null'} -> ${actionableResourceId} ...`);
     var obj = {
         "ActionableResourceId": actionableResourceId,
         "Mode": "Action",
         "$type": "ActionableResourceAvailability_20"
     };
-    res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.18+json');
+    res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.17+json');
     res.send(obj)
 });
 router.get('/actionableResource/:actionableResourceId', (req, res) => {
@@ -53,22 +56,22 @@ router.get('/actionableResource/:actionableResourceId', (req, res) => {
                 "ActionType": "Positive",
                 "Name": "Bye",
                 "Id": "turnmeoff",
-                "$type": "Acti  onFinishWorkflow_18",
+                "$type": "ActionFinishWorkflow_18",
                 "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
             }
         ]
     };
-    res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.18+json')
+    res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.17+json')
     res.send(obj)
 });
 
 
 router.get('/auth',
-    passport.authenticate('google', { session: false }));
+    passport.authenticate('google', {session: false}));
 
 router.get('/auth/callback',
-    passport.authenticate('google', { session: false, failureRedirect: '/login' }),
-    function(req, res) {
+    passport.authenticate('google', {session: false, failureRedirect: '/login'}),
+    function (req, res) {
         req.session.access_token = req.user.accessToken;
         res.redirect('/');
     });
@@ -97,7 +100,7 @@ router.post('/action', (req, res) => {
             // }
         ]
     };
-    res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.18+json');
+    res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.17+json');
     res.send(obj);
 });
 
