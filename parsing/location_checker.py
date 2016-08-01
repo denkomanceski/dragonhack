@@ -16,7 +16,9 @@ def check(word, file_name=london_file):
     if findWholeWord(word)(file.read()):
         print True
 
+
 def get_lat_long(place_string):
+    """Geocoder service to receive lat long for places."""
     g = geocoder.google(place_string)
     if g.status == 'OK':
         print g.latlng
