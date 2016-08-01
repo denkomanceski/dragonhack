@@ -18,4 +18,5 @@ def check(word, file_name=london_file):
 
 def get_lat_long(place_string):
     g = geocoder.google(place_string)
-    print g.latlng
+    if g.status == 'OK':
+        print g.latlng
