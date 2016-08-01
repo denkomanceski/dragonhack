@@ -53,7 +53,7 @@ router.get('/actionableResource/:actionableResourceId', (req, res) => {
                 "ActionType": "Positive",
                 "Name": "Bye",
                 "Id": "turnmeoff",
-                "$type": "Acti  onFinishWorkflow_18",
+                "$type": "ActionFinishWorkflow_18",
                 "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
             }
         ]
