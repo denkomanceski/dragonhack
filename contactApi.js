@@ -8,13 +8,13 @@ var querystring = require('querystring');
 var calendar = require('./calendar');
 var config = {
     apiUrl: 'clean-sprint-app.4thoffice.com',
-    authToken: 'Bearer 06d9739a-042b-40bb-1c21-b5e07d552662'
+    authToken: 'Bearer 4ddb73e7-0074-7494-fe19-75b219319bf8'
 };
 
 var conversationConfig = {
     email: 'denkomanceski@gmail.com',
     userId: '8a360d87-7ed7-4bea-8846-a807903d0e73',
-    conversationIdentity: 'A1_5b026989dc734be29cab0782aadfa5dc',
+    conversationIdentity: 'A1_69800f3e2b88424f956cf7dd5232ebf9',
     conversationWith: 'uzupan@marg.si'
 };
 
@@ -145,7 +145,7 @@ var getUserId = (email, cb) => {
     }));
     req.end();
 };
-var fetchMessages = (user) => {
+var fetchMessages = () => {
     var postData = querystring.stringify({
         'feedscope': 'ChatStream',
         'feedidentity': conversationConfig.conversationIdentity,
@@ -173,6 +173,7 @@ var fetchMessages = (user) => {
         });
         res.on('end', () => {
             return parseAction(JSON.parse(data));
+            console.log(JSON.stringify(data));
             logMsg('No more data in response.');
         })
     });
@@ -181,10 +182,12 @@ var fetchMessages = (user) => {
     req.end();
 };
 setInterval(function () {
-    fetchMessages(conversationConfig.conversationWith)
+    console.log("??");
+    fetchMessages()
 }, 3000);
 
 var parseAction = function (chunk) {
+    console.log("Parsing...", JSON.stringify(chunk));
     var newParsedMessage = _.get(chunk, 'DiscussionListPage.DiscussionList[0].Post.Text', undefined);
     if (newParsedMessage && newParsedMessage != lastProcessedMessage) {
         // process new parsed message
@@ -265,7 +268,7 @@ var processAction = (action, cb) => {
                     },
                 }, (success) => {
                     if (success)
-                        cb('A meeting on ' + lastActionText + ' added to calendar.');
+                        cb('A meeting on ' + lastActionContent + ' added to calendar.');
                 });
                 break;
             case ACTION.AIR_BNB:

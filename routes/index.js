@@ -36,7 +36,7 @@ router.get('/actionableResource/:actionableResourceId', (req, res) => {
     //     'Id': uuid.v4()
     // };
     var obj = {
-        "$type": "ActionableResource_21",
+        "$type": "ActionableResource_22",
         "Id": "8a360d87-7ed7-4bea-8846-a807903d0e73",
         "DescriptionList": [
             "Hello and welcome on stream list"
