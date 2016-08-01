@@ -5,7 +5,6 @@ var http = require("http");
 var _ = require('lodash');
 var querystring = require('querystring');
 var utils = require('./utils');
-var externalAPIController = require('./controllers/externalAPIController');
 var actionController = require('./controllers/actionController');
 var request = require('request');
 
@@ -17,7 +16,7 @@ var config = {
 var conversationConfig = {
     email: 'denkomanceski@gmail.com',
     userId: '8a360d87-7ed7-4bea-8846-a807903d0e73',
-    conversationIdentity: 'A1_69800f3e2b88424f956cf7dd5232ebf9',
+    conversationIdentity: 'A1_20f0a67d5ce841a1b409e6e98f76602d',
     conversationWith: 'uzupan@marg.si'
 };
 
@@ -60,8 +59,6 @@ var sendMailMessage = (email, title, content) => {
     }));
     req.end();
 };
-var lastProcessedMessage = '';
-
 var sendChatMessageByEmail = (email, content, cb) => {
     lastProcessedMessage = content;
     getUserId(email, (res) => {
@@ -176,8 +173,6 @@ var fetchMessages = () => {
 
 var interval;
 function startPolling(conversationIdentity) {
-    lastActionCode = '';
-    lastActionContent = '';
     lastProcessedMessage = '';
     if (interval) {
         clearInterval(interval);
@@ -189,113 +184,20 @@ function startPolling(conversationIdentity) {
         fetchMessages()
     }, 3000);
 }
+
+var lastProcessedMessage = '';
 var parseAction = function (chunk) {
     utils.logMsg("Parsing...", JSON.stringify(chunk));
-    var newParsedMessage = _.get(chunk, 'DiscussionListPage.DiscussionList[0].Post.Text', undefined);
+    var newParsedMessage = utils.replaceBreakWithNewline(_.get(chunk, 'DiscussionListPage.DiscussionList[0].Post.Text'));
     if (newParsedMessage && newParsedMessage != lastProcessedMessage) {
+
+        // set new parsed message as last processed message
+        lastProcessedMessage = newParsedMessage;
+
         // process new parsed message
         actionController.processAction(newParsedMessage, function (messageToSend) {
             lastProcessedMessage = messageToSend;
             sendChatMessageByFeedIdentity(conversationConfig.conversationIdentity, messageToSend);
-        });
-
-        // set new parsed message as last processed message
-        lastProcessedMessage = newParsedMessage;
-    }
-};
-
-var volume = require('./volume');
-var lastActionCode, lastActionContent;
-
-// external python scripts are running asynchronously and we always wait until they finish,
-// before we continue to process new data
-var externalServiceRunning = false;
-
-var clearLastAction = function () {
-    lastActionCode = '';
-    lastActionContent = '';
-};
-
-var processAction = (action, cb) => {
-
-    action = action.toLowerCase();
-
-    // skip processing when external service is running
-    if (externalServiceRunning) {
-        return;
-    }
-
-    if (action.indexOf('volume up') > -1) {
-        volume.setVolume(100, (success) => {
-            cb("Okay, I've increased the volume for you to 100%. Enjoy your music!");
-        });
-    }
-    else if (action.indexOf('volume down') > -1) {
-        volume.setVolume(60, (success) => {
-            cb("Right..the volume is decreased to 60%.");
-        });
-    }
-    else if (action.indexOf('hello') > -1) {
-        cb('Hi boss, what would you like me to do for you :)');
-    }
-    else if (action.indexOf('how are you') > -1) {
-        cb('I am feeling great, I have you');
-    }
-    else if (action.indexOf('to go from') > -1) {
-        lastActionCode = ACTION.SKY_SCANNER;
-        lastActionContent = action;
-        cb('I noticed you plan to travel. Do you want me to check for available flights?')
-    }
-
-    else if (action.indexOf('yes') > -1) {
-        switch (lastActionCode) {
-            case ACTION.SKY_SCANNER:
-                // var spawn = require('child_process').spawn
-                // spawn('open', [extractionController.extractLocation(lastActionContent)]);
-                lastActionContent = extractionController.extractLocation(lastActionContent);
-                lastActionCode = ACTION.AIR_BNB;
-                var skyScannerUrl = `https://www.skyscanner.net/transport/flights/${lastActionContent[0].code}/${lastActionContent[1].code}`;
-                cb('Here are the cheapest flights I found:\n' + skyScannerUrl + "\n\n" +
-                    "Would you also like me to check for AirBnb?");
-                break;
-            case ACTION.GOOGLE_CALENDAR:
-                calendar.insertEvent('denkomanceski@gmail.com', {
-                    'summary': '4th Office Meeting',
-                    'description': 'This event was added by Scarlett.',
-                    'start': {
-                        'dateTime': new Date(),
-                    },
-                    'end': {
-                        'dateTime': new Date(),
-                    },
-                }, (success) => {
-                    if (success)
-                        cb('A meeting on ' + lastActionContent + ' added to calendar.');
-                });
-                break;
-            case ACTION.AIR_BNB:
-                var airBnbUrl = `https://www.airbnb.co.uk/s/${lastActionContent[1].code}?guests=1&checkin=31-07-2016&checkout=30-08-2016&s_tag=1nkLc9tK`;
-                cb('Here are the cheapest AirBnb flats that I found in ' + utils.capitalizeFirstLetter(lastActionContent[1].name) + ":\n" + airBnbUrl);
-                clearLastAction();
-                break;
-        }
-    }
-    else if (action.indexOf('no') > -1) {
-        clearLastAction();
-    }
-    else if (action.indexOf('meet') > -1) {
-
-        externalServiceRunning = true;
-
-        // try to extract the date
-        extractionController.extractDateTime(action, (err, results) => {
-            if (err) throw err;
-            lastActionCode = ACTION.GOOGLE_CALENDAR;
-            cb('I noticed you are planning a meeting on ' + results[0]
-                + '. Would you like me to add a meeting to calendar and send invitation?');
-            lastActionContent = results[0];
-
-            externalServiceRunning = false;
         });
     }
 };
@@ -334,12 +236,6 @@ function getUsersByStreamID(streamId, cb) {
         cb(members);
     })
 }
-
-var logMsg = function (content) {
-    if (debug) {
-        console.log(content);
-    }
-};
 
 getUsersByStreamID('A1_20f0a67d5ce841a1b409e6e98f76602d', users => {
     var string = [];
