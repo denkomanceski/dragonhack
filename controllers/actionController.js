@@ -121,3 +121,6 @@ module.exports = {
         }
     }
 };
+
+exports.lastActionContent = lastActionContent;
+exports.lastActionCode = lastActionCode;

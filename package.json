@@ -23,6 +23,7 @@
     "request": "^2.74.0",
     "serve-favicon": "~2.3.0",
     "unofficial-nest-api": "^0.1.4",
-    "uuid": "latest"
+    "uuid": "latest",
+    "chrome-remote-interface": "latest"
   }
 }

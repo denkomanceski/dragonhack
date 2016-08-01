@@ -4,9 +4,16 @@ var uuid = require('node-uuid');
 var passport = require('../calendar').passport;
 var startPolling = require('../contactApi').startPolling;
 var getUsersByStreamID = require('../contactApi').getUsersByStreamID;
-startPolling();
+var lastAction = require('../controllers/actionController');
+
+// startPolling();
 var currentOpenedUsers = [];
+var lastContextId = '';
+//var crconsole = require('crconsole');
 /* GET home page. */
+router.get('/lastContext', (req, res) => {
+    res.send(lastAction);
+});
 router.get('/actionableResource/availability', (req, res) => {
     // var obj = {
     //     '$type': 'ActionableResourceAvailability_20',
@@ -18,6 +25,7 @@ router.get('/actionableResource/availability', (req, res) => {
     if (req.query.contextId) {
         getUsersByStreamID(req.query.contextId, user => currentOpenedUsers = user);
         startPolling(req.query.contextId);
+        lastContextId = {contextId: req.query.contextId, type: req.query.contextType};
     }
     var actionableResourceId = req.query.contextId != 'null' ? `LondonChallengeExample.${req.query.contextType}.${req.query.contextId}` : `LondonChallengeExample.${req.query.contextType}`
     console.log(`Sending...is ${req.query.contextId != 'null'} -> ${actionableResourceId} ...`);
