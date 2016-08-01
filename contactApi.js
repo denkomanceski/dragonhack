@@ -5,26 +5,28 @@ var debug = true;
 var http = require("http");
 var _ = require('lodash');
 var querystring = require('querystring');
+
 var config = {
     apiUrl: 'clean-sprint-app.4thoffice.com',
-    authToken: 'Bearer 9a1daf8c-d175-8713-23bb-c366072d06c9'
+    authToken: 'Bearer 06d9739a-042b-40bb-1c21-b5e07d552662'
 };
 
 var conversationConfig = {
     email: 'denkomanceski@gmail.com',
     userId: '8a360d87-7ed7-4bea-8846-a807903d0e73',
-    conversationIdentity: 'A1_20f0a67d5ce841a1b409e6e98f76602d',
+    conversationIdentity: 'A1_5b026989dc734be29cab0782aadfa5dc',
     conversationWith: 'uzupan@marg.si'
 };
 
 var extractionController = require('./controllers/extractionController');
 var externalAPIController = require('./controllers/externalAPIController');
+var utils = require('./utils');
 
 var ACTION = {
-    SKYSCANNER: 0,
-    AIRBNB: 1,
+    SKY_SCANNER: 0,
+    AIR_BNB: 1,
     GOOGLE_CALENDAR: 2,
-    UBER: 3
+    CITY_MAPPER: 3
 };
 
 var sendMailMessage = (email, title, content) => {
@@ -198,11 +200,16 @@ var parseAction = function (chunk) {
 };
 
 var volume = require('./volume');
-var lastActionCode, lastActionText;
+var lastActionCode, lastActionContent;
 
 // external python scripts are running asynchronously and we always wait until they finish,
 // before we continue to process new data
 var externalServiceRunning = false;
+
+var clearLastAction = function () {
+    lastActionCode = '';
+    lastActionContent = '';
+};
 
 var processAction = (action, cb) => {
 
@@ -230,32 +237,36 @@ var processAction = (action, cb) => {
         cb('I am feeling great, I have you');
     }
     else if (action.indexOf('to go from') > -1) {
-        lastActionCode = ACTION.SKYSCANNER;
-        lastActionText = action;
+        lastActionCode = ACTION.SKY_SCANNER;
+        lastActionContent = action;
         cb('I noticed you plan to travel. Do you want me to check for available flights?')
     }
 
-    else if(action.indexOf('yes') > -1){
-        switch(lastActionCode){
-            case ACTION.SKYSCANNER:
+    else if (action.indexOf('yes') > -1) {
+        switch (lastActionCode) {
+            case ACTION.SKY_SCANNER:
                 // var spawn = require('child_process').spawn
-                // spawn('open', [checkCities(lastActionText)]);
-                cb(checkCities(lastActionText));
-                lastActionCode = '';
-                lastActionText = '';
+                // spawn('open', [extractionController.extractLocation(lastActionContent)]);
+                lastActionContent = extractionController.extractLocation(lastActionContent);
+                lastActionCode = ACTION.AIR_BNB;
+                var skyScannerUrl = `https://www.skyscanner.net/transport/flights/${lastActionContent[0].code}/${lastActionContent[1].code}`;
+                cb('Here are the cheapest flights I found:\n' + skyScannerUrl + "\n\n" +
+                    "Would you also like me to check for AirBnb?");
                 break;
             case ACTION.GOOGLE_CALENDAR:
-                cb('A meeting on ' + lastActionText + ' added to calendar.');
+                cb('A meeting on ' + lastActionContent + ' added to calendar.');
+                // TODO: add event to calendar meeting
+                clearLastAction();
+                break;
+            case ACTION.AIR_BNB:
+                var airBnbUrl = `https://www.airbnb.co.uk/s/${lastActionContent[1].code}?guests=1&checkin=31-07-2016&checkout=30-08-2016&s_tag=1nkLc9tK`;
+                cb('Here are the cheapest AirBnb flats that I found in ' + utils.capitalizeFirstLetter(lastActionContent[1].name) + ":\n" + airBnbUrl);
+                clearLastAction();
                 break;
         }
-        //https://www.airbnb.co.uk/s/${cityName}?guests=1&checkin=31-07-2016&checkout=30-08-2016&s_tag=1nkLc9tK
-        // clear last action
-        lastActionCode = '';
-        lastActionText = '';
     }
     else if (action.indexOf('no') > -1) {
-        lastActionCode = '';
-        lastActionText = '';
+        clearLastAction();
     }
     else if (action.indexOf('meet') > -1) {
 
@@ -267,31 +278,12 @@ var processAction = (action, cb) => {
             lastActionCode = ACTION.GOOGLE_CALENDAR;
             cb('I noticed you are planning a meeting on ' + results[0]
                 + '. Would you like me to add a meeting to calendar and send invitation?');
-            lastActionText = results[0];
+            lastActionContent = results[0];
 
             externalServiceRunning = false;
         });
     }
 };
-
-function checkCities(action) {
-    var city1 = '', city2 = '';
-    cityNamesDictinary.forEach(city => {
-        var indexNr = action.indexOf(city.name);
-        if (indexNr > -1) {
-            action = action.slice(0, indexNr) + action.slice(indexNr + city.name.length, action.length);
-            if (!city1)
-                city1 = city.code;
-            else if (!city2)
-                city2 = city.code;
-        }
-    });
-    return `https://www.skyscanner.net/transport/flights/${city1}/${city2}`
-}
-var cityNamesDictinary = [
-    {name: 'london', code: 'lond'},
-    {name: 'ljubljana', code: 'lju'}
-];
 
 //sendChatMessageByEmail('kristjansesek@gmail.com', "test123");
 //sendChatMessageByFeedIdentity('A1_cc175089d4d34e5492588e65ae8920fd','denkomanceski@gmail.com');
