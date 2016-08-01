@@ -5,6 +5,7 @@ var debug = true;
 var http = require("http");
 var _ = require('lodash');
 var querystring = require('querystring');
+var calendar = require('./calendar');
 var config = {
     apiUrl: 'clean-sprint-app.4thoffice.com',
     authToken: 'Bearer 9a1daf8c-d175-8713-23bb-c366072d06c9'
@@ -235,8 +236,8 @@ var processAction = (action, cb) => {
         cb('I noticed you plan to travel. Do you want me to check for available flights?')
     }
 
-    else if(action.indexOf('yes') > -1){
-        switch(lastActionCode){
+    else if (action.indexOf('yes') > -1) {
+        switch (lastActionCode) {
             case ACTION.SKYSCANNER:
                 // var spawn = require('child_process').spawn
                 // spawn('open', [checkCities(lastActionText)]);
@@ -245,7 +246,19 @@ var processAction = (action, cb) => {
                 lastActionText = '';
                 break;
             case ACTION.GOOGLE_CALENDAR:
-                cb('A meeting on ' + lastActionText + ' added to calendar.');
+                calendar.insertEvent('denkomanceski@gmail.com', {
+                    'summary': '4th Office Meeting',
+                    'description': 'This event was added by Scarlett.',
+                    'start': {
+                        'dateTime': new Date(),
+                    },
+                    'end': {
+                        'dateTime': new Date(),
+                    },
+                }, (success) => {
+                    if (success)
+                        cb('A meeting on ' + lastActionText + ' added to calendar.');
+                });
                 break;
         }
         //https://www.airbnb.co.uk/s/${cityName}?guests=1&checkin=31-07-2016&checkout=30-08-2016&s_tag=1nkLc9tK

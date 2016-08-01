@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var uuid = require('node-uuid');
 var passport = require('../calendar').passport;
+
 /* GET home page. */
 router.get('/actionableResource/availability', (req, res) => {
     // var obj = {

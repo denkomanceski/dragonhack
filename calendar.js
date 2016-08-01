@@ -7,7 +7,7 @@ var config = {
     consumer_key: '677105350306-371f5lpnpndtgrc9p087597sarhcva1q.apps.googleusercontent.com',
     consumer_secret: 'T8BYSHVLbPOzERBWvsDJ2imm'
 }
-var token = 'ya29.CjAyAwPC-CBMVMSsbntwHXZ5YLdH2s0Un2yKT5M85RWZOPrvZVs1qAYvyIl64B1atpA';
+var token = 'ya29.CjAyA3cRcm2fMltFbK9vBv0EOYFPh3UWX9OXFApcx5ZLYoTr7d3Ayb_qgHALN3zASMk';
 var google_calendar;
 passport.use(new GoogleStrategy({
         clientID: config.consumer_key,
@@ -50,17 +50,18 @@ var event = {
     ]
 };
 // insertEvent('denkomanceski@gmail.com', event);
-function insertEvent(calendarId, event) {
+function insertEvent(calendarId, event, cb) {
     google_calendar.events.insert(calendarId, event, {
         sendNotifications: true
     }, (err, data) => {
         console.log(err, data);
+        cb(true)
     })
 }
 function listEvents(cb) {
     google_calendar.calendarList.list(function (err, calendarList) {
         console.log(JSON.stringify(calendarList));
-        if(err) throw err;
+        if (err) throw err;
         google_calendar.events.list(calendarList.items[0].id, {
             maxResults: 50,
             singleEvents: true,
@@ -74,17 +75,21 @@ function listEvents(cb) {
     });
 
 }
-function currentlyRunning(events){
-    var date = moment();
-    var activeEvent = {}
-    events.forEach(event => {
-        var startDate = new moment(event.start.dateTime);
-        var endDate = new moment(event.end.dateTime);
-        var range = moment().range(startDate, endDate);
-        if(range.contains(date))
-            activeEvent  = event;
-    });
-    return activeEvent;
+function currentlyRunning() {
+    listEvents(events => {
+        var date = moment();
+        var activeEvent = {}
+        if (events.length > 0)
+            events.forEach(event => {
+                var startDate = new moment(event.start.dateTime);
+                var endDate = new moment(event.end.dateTime);
+                var range = moment().range(startDate, endDate);
+                if (range.contains(date))
+                    activeEvent = event;
+            });
+        return activeEvent;
+    })
+
 }
 // listEvents((events) => {
 //     console.log(JSON.stringify(currentlyRunning(events)));
@@ -92,3 +97,5 @@ function currentlyRunning(events){
 
 console.log(":)");
 exports.passport = passport;
+exports.currentlyRunning = currentlyRunning;
+exports.insertEvent = insertEvent;
