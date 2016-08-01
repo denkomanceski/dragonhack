@@ -317,7 +317,6 @@ var processAction = (action, cb) => {
 
 getUserId('denkomanceski@gmail.com', (res) => {
     console.log(JSON.stringify(res), "RESSS...");
-    ;
 });
 
 function getUsersByStreamID(streamId, cb) {
