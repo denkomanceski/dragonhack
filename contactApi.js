@@ -181,11 +181,23 @@ var fetchMessages = () => {
     req.write(postData);
     req.end();
 };
-setInterval(function () {
-    console.log("??");
-    fetchMessages()
-}, 3000);
 
+var interval;
+function startPolling(conversationIdentity){
+    lastActionCode = '';
+    lastActionContent = '';
+    lastProcessedMessage = '';
+    if(interval){
+        clearInterval(interval);
+    }
+    if(conversationIdentity){
+        conversationConfig.conversationIdentity = conversationIdentity;
+    }
+    interval = setInterval(function () {
+        console.log("??");
+        fetchMessages()
+    }, 3000);
+}
 var parseAction = function (chunk) {
     console.log("Parsing...", JSON.stringify(chunk));
     var newParsedMessage = _.get(chunk, 'DiscussionListPage.DiscussionList[0].Post.Text', undefined);
@@ -305,7 +317,7 @@ var processAction = (action, cb) => {
 // });
 
 getUserId('denkomanceski@gmail.com', (res) => {
-    logMsg(JSON.stringify(res));
+    console.log(JSON.stringify(res), "RESSS...");;
 });
 
 var logMsg = function (content) {
@@ -313,3 +325,5 @@ var logMsg = function (content) {
         console.log(content);
     }
 };
+
+exports.startPolling = startPolling;
