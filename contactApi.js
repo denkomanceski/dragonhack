@@ -4,12 +4,12 @@
 var http = require("http");
 var _ = require('lodash');
 var querystring = require('querystring');
-var moment = require('moment');
-var externalAPIController = require('./controllers/externalAPIController');
 var utils = require('./utils');
+var externalAPIController = require('./controllers/externalAPIController');
 var actionController = require('./controllers/actionController');
+var request = require('request');
 
-config = {
+var config = {
     apiUrl: 'clean-sprint-app.4thoffice.com',
     authToken: 'Bearer 4ddb73e7-0074-7494-fe19-75b219319bf8'
 };
@@ -17,7 +17,7 @@ config = {
 var conversationConfig = {
     email: 'denkomanceski@gmail.com',
     userId: '8a360d87-7ed7-4bea-8846-a807903d0e73',
-    conversationIdentity: 'A1_20f0a67d5ce841a1b409e6e98f76602d',
+    conversationIdentity: 'A1_69800f3e2b88424f956cf7dd5232ebf9',
     conversationWith: 'uzupan@marg.si'
 };
 
@@ -69,8 +69,8 @@ var sendChatMessageByEmail = (email, content, cb) => {
     })
 
 };
-var sendChatMessageByFeedIdentity = (feedIdentity, content) => {
-    //utils.logMsg(res.Id);
+var sendChatMessageByFeedIdentity = (feedIdentity, content, callback) => {
+    //logMsg(res.Id);
     var options = {
         host: config.apiUrl,
         path: '/api/post',
@@ -88,7 +88,8 @@ var sendChatMessageByFeedIdentity = (feedIdentity, content) => {
             utils.logMsg(`BODY: ${chunk}`);
         });
         res.on('end', (err, data) => {
-            utils.logMsg('No more data in response.');
+            if (callback)callback(data);
+            utils.logMsg('No more data in response.')
         })
     });
 
@@ -175,7 +176,8 @@ var fetchMessages = () => {
 
 var interval;
 function startPolling(conversationIdentity) {
-    console.log(`Changing polling identity to: ${conversationIdentity}`);
+    lastActionCode = '';
+    lastActionContent = '';
     lastProcessedMessage = '';
     if (interval) {
         clearInterval(interval);
@@ -184,13 +186,12 @@ function startPolling(conversationIdentity) {
         conversationConfig.conversationIdentity = conversationIdentity;
     }
     interval = setInterval(function () {
-        console.log("??");
-        fetchMessages();
+        fetchMessages()
     }, 3000);
 }
 var parseAction = function (chunk) {
     utils.logMsg("Parsing...", JSON.stringify(chunk));
-    var newParsedMessage = utils.replaceBreakWithNewline(_.get(chunk, 'DiscussionListPage.DiscussionList[0].Post.Text'));
+    var newParsedMessage = _.get(chunk, 'DiscussionListPage.DiscussionList[0].Post.Text', undefined);
     if (newParsedMessage && newParsedMessage != lastProcessedMessage) {
         // process new parsed message
         actionController.processAction(newParsedMessage, function (messageToSend) {
@@ -203,6 +204,101 @@ var parseAction = function (chunk) {
     }
 };
 
+var volume = require('./volume');
+var lastActionCode, lastActionContent;
+
+// external python scripts are running asynchronously and we always wait until they finish,
+// before we continue to process new data
+var externalServiceRunning = false;
+
+var clearLastAction = function () {
+    lastActionCode = '';
+    lastActionContent = '';
+};
+
+var processAction = (action, cb) => {
+
+    action = action.toLowerCase();
+
+    // skip processing when external service is running
+    if (externalServiceRunning) {
+        return;
+    }
+
+    if (action.indexOf('volume up') > -1) {
+        volume.setVolume(100, (success) => {
+            cb("Okay, I've increased the volume for you to 100%. Enjoy your music!");
+        });
+    }
+    else if (action.indexOf('volume down') > -1) {
+        volume.setVolume(60, (success) => {
+            cb("Right..the volume is decreased to 60%.");
+        });
+    }
+    else if (action.indexOf('hello') > -1) {
+        cb('Hi boss, what would you like me to do for you :)');
+    }
+    else if (action.indexOf('how are you') > -1) {
+        cb('I am feeling great, I have you');
+    }
+    else if (action.indexOf('to go from') > -1) {
+        lastActionCode = ACTION.SKY_SCANNER;
+        lastActionContent = action;
+        cb('I noticed you plan to travel. Do you want me to check for available flights?')
+    }
+
+    else if (action.indexOf('yes') > -1) {
+        switch (lastActionCode) {
+            case ACTION.SKY_SCANNER:
+                // var spawn = require('child_process').spawn
+                // spawn('open', [extractionController.extractLocation(lastActionContent)]);
+                lastActionContent = extractionController.extractLocation(lastActionContent);
+                lastActionCode = ACTION.AIR_BNB;
+                var skyScannerUrl = `https://www.skyscanner.net/transport/flights/${lastActionContent[0].code}/${lastActionContent[1].code}`;
+                cb('Here are the cheapest flights I found:\n' + skyScannerUrl + "\n\n" +
+                    "Would you also like me to check for AirBnb?");
+                break;
+            case ACTION.GOOGLE_CALENDAR:
+                calendar.insertEvent('denkomanceski@gmail.com', {
+                    'summary': '4th Office Meeting',
+                    'description': 'This event was added by Scarlett.',
+                    'start': {
+                        'dateTime': new Date(),
+                    },
+                    'end': {
+                        'dateTime': new Date(),
+                    },
+                }, (success) => {
+                    if (success)
+                        cb('A meeting on ' + lastActionContent + ' added to calendar.');
+                });
+                break;
+            case ACTION.AIR_BNB:
+                var airBnbUrl = `https://www.airbnb.co.uk/s/${lastActionContent[1].code}?guests=1&checkin=31-07-2016&checkout=30-08-2016&s_tag=1nkLc9tK`;
+                cb('Here are the cheapest AirBnb flats that I found in ' + utils.capitalizeFirstLetter(lastActionContent[1].name) + ":\n" + airBnbUrl);
+                clearLastAction();
+                break;
+        }
+    }
+    else if (action.indexOf('no') > -1) {
+        clearLastAction();
+    }
+    else if (action.indexOf('meet') > -1) {
+
+        externalServiceRunning = true;
+
+        // try to extract the date
+        extractionController.extractDateTime(action, (err, results) => {
+            if (err) throw err;
+            lastActionCode = ACTION.GOOGLE_CALENDAR;
+            cb('I noticed you are planning a meeting on ' + results[0]
+                + '. Would you like me to add a meeting to calendar and send invitation?');
+            lastActionContent = results[0];
+
+            externalServiceRunning = false;
+        });
+    }
+};
 
 //sendChatMessageByEmail('kristjansesek@gmail.com', "test123");
 //sendChatMessageByFeedIdentity('A1_cc175089d4d34e5492588e65ae8920fd','denkomanceski@gmail.com');
@@ -214,4 +310,44 @@ getUserId('denkomanceski@gmail.com', (res) => {
     console.log(JSON.stringify(res), "RESSS...");
 });
 
+function getUsersByStreamID(streamId, cb) {
+    var options = {
+        url: `http://${config.apiUrl}/api/stream/${streamId}`,
+        headers: {
+            'Authorization': config.authToken,
+            'Accept': 'application/vnd.4thoffice.stream-5.3+json',
+            'X-Impersonate-User': conversationConfig.userId
+        }
+    };
+    request(options, (error, response, body) => {
+        var data = JSON.parse(body);
+        console.log(JSON.stringify(data));
+        var members = [];
+        if (data.Members)
+            data.Members.forEach(member => {
+                if (member.id != conversationConfig.userId)
+                    members.push(member);
+            });
+        else {
+            members.push(data);
+        }
+        cb(members);
+    })
+}
+
+var logMsg = function (content) {
+    if (debug) {
+        console.log(content);
+    }
+};
+
+getUsersByStreamID('A1_20f0a67d5ce841a1b409e6e98f76602d', users => {
+    var string = [];
+    users.forEach(user => {
+        string.push(user.Name);
+    });
+    string = string.join(', ');
+    console.log(string);
+});
 exports.startPolling = startPolling;
+exports.getUsersByStreamID = getUsersByStreamID;

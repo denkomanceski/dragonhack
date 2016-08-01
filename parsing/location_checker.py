@@ -1,5 +1,6 @@
 """Location parsing."""
 import re
+import geocoder
 
 
 def findWholeWord(word):
@@ -14,3 +15,7 @@ def check(word, file_name=london_file):
     file = open(file_name)
     if findWholeWord(word)(file.read()):
         print True
+
+def get_lat_long(place_string):
+    g = geocoder.google(place_string)
+    print g.latlng
