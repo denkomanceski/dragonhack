@@ -347,8 +347,14 @@ var logMsg = function (content) {
         console.log(content);
     }
 };
+
 getUsersByStreamID('A1_20f0a67d5ce841a1b409e6e98f76602d', users => {
-    console.log(JSON.stringify(users), "Users");
-});
+    var string = [];
+    users.forEach(user => {
+        string.push(user.Name);
+    });
+    string = string.join(', ');
+    console.log(string);
+})
 exports.startPolling = startPolling;
 exports.getUsersByStreamID = getUsersByStreamID;
