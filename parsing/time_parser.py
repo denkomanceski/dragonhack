@@ -40,9 +40,5 @@ def example_dateutil():
     return dateutil_parsed(content)
 
 if __name__ == "__main__":
-    if(len(sys.argv) >= 2 and sys.argv[1]=='debug'):
-        should_parse_today()
-        should_parse_tomorrow()
-    else:
-        for v in sys.argv[1:]:
-            print(parse_time(v))
+    for v in sys.argv[1:]:
+        print(parse_time(v))
