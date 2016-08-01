@@ -338,6 +338,9 @@ function getUsersByStreamID(streamId, cb) {
                 if (member.id != conversationConfig.userId)
                     members.push(member);
             });
+        else {
+            members.push(data);
+        }
         cb(members);
     })
 }
@@ -355,6 +358,6 @@ getUsersByStreamID('A1_20f0a67d5ce841a1b409e6e98f76602d', users => {
     });
     string = string.join(', ');
     console.log(string);
-})
+});
 exports.startPolling = startPolling;
 exports.getUsersByStreamID = getUsersByStreamID;
