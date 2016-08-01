@@ -2,7 +2,7 @@ import unittest
 import datetime
 from time_parser import timex_parse, parse_time
  
-class TestUM(unittest.TestCase):
+class TestTimeParser(unittest.TestCase):
  
     def setUp(self):
         pass
