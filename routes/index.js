@@ -53,7 +53,7 @@ router.get('/actionableResource/:actionableResourceId', (req, res) => {
         "$type": "ActionableResource_21",
         "Id": "8a360d87-7ed7-4bea-8846-a807903d0e73",
         "DescriptionList": [
-            `This conversation is with: ${usersString}`
+            `This conversation is with: ${usersString} \n http://www.google.com`
         ],
         "ActionList": [
             {
