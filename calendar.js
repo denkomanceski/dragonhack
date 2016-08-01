@@ -7,7 +7,7 @@ var config = {
     consumer_key: '677105350306-371f5lpnpndtgrc9p087597sarhcva1q.apps.googleusercontent.com',
     consumer_secret: 'T8BYSHVLbPOzERBWvsDJ2imm'
 }
-var token = 'ya29.Ci8xA4OlZ2iuWjRB22dL_LjfHYAiOtt3nlCkZyNH_oFC2KHQSGgErnAaVs67nC7LIA';
+var token = 'ya29.CjAyAwPC-CBMVMSsbntwHXZ5YLdH2s0Un2yKT5M85RWZOPrvZVs1qAYvyIl64B1atpA';
 var google_calendar;
 passport.use(new GoogleStrategy({
         clientID: config.consumer_key,
