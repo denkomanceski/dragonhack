@@ -1,15 +1,13 @@
 /**
  * Created by denkomanceski on 5/14/16.
  */
-var debug = true;
 var http = require("http");
 var _ = require('lodash');
 var querystring = require('querystring');
-var calendar = require('./calendar');
 var moment = require('moment');
-var extractionController = require('./controllers/extractionController');
 var externalAPIController = require('./controllers/externalAPIController');
 var utils = require('./utils');
+var actionController = require('./controllers/actionController');
 
 config = {
     apiUrl: 'clean-sprint-app.4thoffice.com',
@@ -21,13 +19,6 @@ var conversationConfig = {
     userId: '8a360d87-7ed7-4bea-8846-a807903d0e73',
     conversationIdentity: 'A1_20f0a67d5ce841a1b409e6e98f76602d',
     conversationWith: 'uzupan@marg.si'
-};
-
-var ACTION = {
-    SKY_SCANNER: 0,
-    AIR_BNB: 1,
-    GOOGLE_CALENDAR: 2,
-    CITY_MAPPER: 3
 };
 
 var sendMailMessage = (email, title, content) => {
@@ -45,10 +36,10 @@ var sendMailMessage = (email, title, content) => {
     var req = http.request(options, (res) => {
         res.setEncoding('utf8');
         res.on('data', (chunk) => {
-            //logMsg(`BODY: ${chunk}`);
+            //utils.logMsg(`BODY: ${chunk}`);
         });
         res.on('end', () => {
-            logMsg('No more data in response.')
+            utils.logMsg('No more data in response.')
         })
     });
 
@@ -79,7 +70,7 @@ var sendChatMessageByEmail = (email, content, cb) => {
 
 };
 var sendChatMessageByFeedIdentity = (feedIdentity, content) => {
-    //logMsg(res.Id);
+    //utils.logMsg(res.Id);
     var options = {
         host: config.apiUrl,
         path: '/api/post',
@@ -94,10 +85,10 @@ var sendChatMessageByFeedIdentity = (feedIdentity, content) => {
     var req = http.request(options, (res) => {
         res.setEncoding('utf8');
         res.on('data', (chunk) => {
-            logMsg(`BODY: ${chunk}`);
+            utils.logMsg(`BODY: ${chunk}`);
         });
         res.on('end', (err, data) => {
-            logMsg('No more data in response.');
+            utils.logMsg('No more data in response.');
         })
     });
 
@@ -127,10 +118,10 @@ var getUserId = (email, cb) => {
         res.setEncoding('utf8');
         res.on('data', (chunk) => {
             cb(JSON.parse(chunk));
-            //logMsg(`BODY: ${chunk}`);
+            //utils.logMsg(`BODY: ${chunk}`);
         });
         res.on('end', () => {
-            logMsg('No more data in response.')
+            utils.logMsg('No more data in response.')
         })
     });
 
@@ -169,12 +160,12 @@ var fetchMessages = () => {
         res.on('data', (chunk) => {
             //cb(JSON.parse(chunk));
             data += chunk;
-            //logMsg(`BODY: ${chunk}`);
+            //utils.logMsg(`BODY: ${chunk}`);
         });
         res.on('end', () => {
+            console.log("DATA:" + JSON.stringify(data));
             return parseAction(JSON.parse(data));
-            console.log(JSON.stringify(data));
-            logMsg('No more data in response.');
+            utils.logMsg('No more data in response.');
         })
     });
 
@@ -183,29 +174,26 @@ var fetchMessages = () => {
 };
 
 var interval;
-function startPolling(conversationIdentity){
+function startPolling(conversationIdentity) {
     console.log(`Changing polling identity to: ${conversationIdentity}`);
-    lastActionCode = '';
-    lastActionContent = '';
     lastProcessedMessage = '';
-    if(interval){
+    if (interval) {
         clearInterval(interval);
     }
-    if(conversationIdentity){
+    if (conversationIdentity) {
         conversationConfig.conversationIdentity = conversationIdentity;
     }
     interval = setInterval(function () {
         console.log("??");
-        fetchMessages()
+        fetchMessages();
     }, 3000);
 }
 var parseAction = function (chunk) {
-    console.log("Parsing...", JSON.stringify(chunk));
+    utils.logMsg("Parsing...", JSON.stringify(chunk));
     var newParsedMessage = utils.replaceBreakWithNewline(_.get(chunk, 'DiscussionListPage.DiscussionList[0].Post.Text'));
     if (newParsedMessage && newParsedMessage != lastProcessedMessage) {
         // process new parsed message
-        logMsg("Processing message: " + newParsedMessage);
-        processAction(newParsedMessage, function (messageToSend) {
+        actionController.processAction(newParsedMessage, function (messageToSend) {
             lastProcessedMessage = messageToSend;
             sendChatMessageByFeedIdentity(conversationConfig.conversationIdentity, messageToSend);
         });
@@ -215,124 +203,15 @@ var parseAction = function (chunk) {
     }
 };
 
-var volume = require('./volume');
-var lastActionCode, lastActionContent;
-
-// external python scripts are running asynchronously and we always wait until they finish,
-// before we continue to process new data
-var externalServiceRunning = false;
-
-var clearLastAction = function () {
-    lastActionCode = '';
-    lastActionContent = '';
-};
-
-var processAction = (action, cb) => {
-
-    action = action.toLowerCase();
-
-    // skip processing when external service is running
-    if (externalServiceRunning) {
-        return;
-    }
-
-    if (action.indexOf('volume up') > -1) {
-        volume.setVolume(100, (success) => {
-            cb("Okay, I've increased the volume for you to 100%. Enjoy your music!");
-        });
-    }
-    else if (action.indexOf('volume down') > -1) {
-        volume.setVolume(60, (success) => {
-            cb("Right..the volume is decreased to 60%.");
-        });
-    }
-    else if (action.indexOf('hello') > -1) {
-        cb('Hi boss, what would you like me to do for you :)');
-    }
-    else if (action.indexOf('how are you') > -1) {
-        cb('I am feeling great, I have you');
-    }
-    else if (action.indexOf('to go from') > -1) {
-        lastActionCode = ACTION.SKY_SCANNER;
-        lastActionContent = action;
-        cb('I noticed you plan to travel. Do you want me to check for available flights?')
-    }
-
-    else if (action.indexOf('yes') > -1) {
-        switch (lastActionCode) {
-            case ACTION.SKY_SCANNER:
-                // var spawn = require('child_process').spawn
-                // spawn('open', [extractionController.extractLocation(lastActionContent)]);
-                lastActionContent = extractionController.extractLocation(lastActionContent);
-                lastActionCode = ACTION.AIR_BNB;
-                var skyScannerUrl = `https://www.skyscanner.net/transport/flights/${lastActionContent[0].code}/${lastActionContent[1].code}`;
-                cb('Here are the cheapest flights I found:\n' + skyScannerUrl + "\n\n" +
-                    "Would you also like me to check for AirBnb?");
-                break;
-            case ACTION.GOOGLE_CALENDAR:
-                calendar.insertEvent('kristjansesek@gmail.com', {
-                    'summary': '4th Office Meeting',
-                    'description': 'This event was added by Scarlett.',
-                    'start': {
-                        'dateTime': new Date(),
-                    },
-                    'end': {
-                        'dateTime': new Date(),
-                    },
-                }, (success) => {
-                    if (success) {
-                        var meetingLocation = "Baker Street"; // TODO: make this dynamic
-                        cb('A meeting on ' + lastActionContent + ' added to calendar.\n\n' +
-                            'Would you also like me to find transportation for your meeting on ' + meetingLocation + " at " + lastActionContent + "?");
-                        lastActionCode = ACTION.CITY_MAPPER;
-                    }
-                });
-                break;
-            case ACTION.AIR_BNB:
-                var airBnbUrl = `https://www.airbnb.co.uk/s/${lastActionContent[1].code}?guests=1&checkin=31-07-2016&checkout=30-08-2016&s_tag=1nkLc9tK`;
-                cb('Here are the cheapest AirBnb flats that I found in ' + utils.capitalizeFirstLetter(lastActionContent[1].name) + ":\n" + airBnbUrl);
-                clearLastAction();
-                break;
-            case ACTION.CITY_MAPPER:
-
-                clearLastAction();
-                break;
-        }
-    }
-    else if (action.indexOf('no') > -1) {
-        clearLastAction();
-    }
-    else if (action.indexOf('meet') > -1) {
-
-        externalServiceRunning = true;
-
-        // try to extract the date
-        extractionController.extractDateTime(action, (err, results) => {
-            if (err) throw err;
-            lastActionCode = ACTION.GOOGLE_CALENDAR;
-            cb('I noticed you are planning a meeting on ' + results[0]
-                + '. Would you like me to add a meeting to calendar and send invitation?');
-            lastActionContent = results[0];
-
-            externalServiceRunning = false;
-        });
-    }
-};
 
 //sendChatMessageByEmail('kristjansesek@gmail.com', "test123");
 //sendChatMessageByFeedIdentity('A1_cc175089d4d34e5492588e65ae8920fd','denkomanceski@gmail.com');
 // sendChatMessageByFeedIdentity('A1_20f0a67d5ce841a1b409e6e98f76602d', "Hello test123", (data) => {
-//     logMsg(JSON.stringify(data));
+//     utils.logMsg(JSON.stringify(data));
 // });
 
 getUserId('denkomanceski@gmail.com', (res) => {
-    console.log(JSON.stringify(res), "RESSS...");;
+    console.log(JSON.stringify(res), "RESSS...");
 });
-
-var logMsg = function (content) {
-    if (debug) {
-        console.log(content);
-    }
-};
 
 exports.startPolling = startPolling;
