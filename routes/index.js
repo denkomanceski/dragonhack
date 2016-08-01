@@ -17,7 +17,7 @@ router.get('/actionableResource/availability', (req, res) => {
         "Mode": "Action",
         "$type": "ActionableResourceAvailability_20"
     };
-    res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.17+json');
+    res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.18+json');
     res.send(obj)
 });
 router.get('/actionableResource/:actionableResourceId', (req, res) => {
@@ -57,7 +57,7 @@ router.get('/actionableResource/:actionableResourceId', (req, res) => {
             }
         ]
     };
-    res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.17+json')
+    res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.18+json')
     res.send(obj)
 });
 
@@ -96,7 +96,7 @@ router.post('/action', (req, res) => {
             // }
         ]
     };
-    res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.17+json');
+    res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.18+json');
     res.send(obj);
 });
 
