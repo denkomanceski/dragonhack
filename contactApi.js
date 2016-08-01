@@ -8,7 +8,7 @@ var querystring = require('querystring');
 var calendar = require('./calendar');
 var config = {
     apiUrl: 'clean-sprint-app.4thoffice.com',
-    authToken: 'Bearer 9a1daf8c-d175-8713-23bb-c366072d06c9'
+    authToken: 'Bearer 06d9739a-042b-40bb-1c21-b5e07d552662'
 };
 
 var conversationConfig = {
