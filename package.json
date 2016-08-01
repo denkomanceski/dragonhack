@@ -20,6 +20,7 @@
     "passport": "^0.3.2",
     "passport-google-oauth": "^1.0.0",
     "python-shell": "^0.4.0",
+    "request": "^2.74.0",
     "serve-favicon": "~2.3.0",
     "unofficial-nest-api": "^0.1.4",
     "uuid": "latest"

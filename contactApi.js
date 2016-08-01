@@ -10,7 +10,7 @@ var config = {
     apiUrl: 'clean-sprint-app.4thoffice.com',
     authToken: 'Bearer 4ddb73e7-0074-7494-fe19-75b219319bf8'
 };
-
+var request = require('request');
 var conversationConfig = {
     email: 'denkomanceski@gmail.com',
     userId: '8a360d87-7ed7-4bea-8846-a807903d0e73',
@@ -184,7 +184,6 @@ var fetchMessages = () => {
 
 var interval;
 function startPolling(conversationIdentity){
-    console.log(`Changing polling identity to: ${conversationIdentity}`);
     lastActionCode = '';
     lastActionContent = '';
     lastProcessedMessage = '';
@@ -195,7 +194,6 @@ function startPolling(conversationIdentity){
         conversationConfig.conversationIdentity = conversationIdentity;
     }
     interval = setInterval(function () {
-        console.log("??");
         fetchMessages()
     }, 3000);
 }
@@ -321,6 +319,27 @@ getUserId('denkomanceski@gmail.com', (res) => {
     console.log(JSON.stringify(res), "RESSS...");;
 });
 
+function getUsersByStreamID(streamId, cb){
+    var options = {
+        url: `http://${config.apiUrl}/api/stream/${streamId}`,
+        headers: {
+            'Authorization': config.authToken,
+            'Accept': 'application/vnd.4thoffice.stream-5.3+json',
+            'X-Impersonate-User': conversationConfig.userId
+        }
+    };
+    request(options, (error, response, body) => {
+        var data = JSON.parse(body);
+        console.log(JSON.stringify(data));
+        var members = [];
+        data.Members.forEach(member => {
+            if(member.id != conversationConfig.userId)
+                members.push(member);
+        });
+        cb(data);
+    })
+}
+
 var logMsg = function (content) {
     if (debug) {
         console.log(content);
@@ -328,3 +347,4 @@ var logMsg = function (content) {
 };
 
 exports.startPolling = startPolling;
+exports.getUsersByStreamID = getUsersByStreamID;

@@ -3,7 +3,9 @@ var router = express.Router();
 var uuid = require('node-uuid');
 var passport = require('../calendar').passport;
 var startPolling = require('../contactApi').startPolling;
+var getUsersByStreamID = require('../contactApi').getUsersByStreamID;
 startPolling();
+var currentOpenedUsers = [];
 /* GET home page. */
 router.get('/actionableResource/availability', (req, res) => {
     // var obj = {
@@ -11,9 +13,12 @@ router.get('/actionableResource/availability', (req, res) => {
     //     'Mode': 'Action',
     //     'ActionableResourceId': '1234567'
     // };
+
     console.log(JSON.stringify(req.query));
-    if (req.query.contextId)
+    if (req.query.contextId) {
+        getUsersByStreamID(req.query.contextId, user => currentOpenedUsers = user);
         startPolling(req.query.contextId);
+    }
     var actionableResourceId = req.query.contextId != 'null' ? `LondonChallengeExample.${req.query.contextType}.${req.query.contextId}` : `LondonChallengeExample.${req.query.contextType}`
     console.log(`Sending...is ${req.query.contextId != 'null'} -> ${actionableResourceId} ...`);
     var obj = {
@@ -38,11 +43,15 @@ router.get('/actionableResource/:actionableResourceId', (req, res) => {
     //     '$type': 'ActionableResource_21',
     //     'Id': uuid.v4()
     // };
+    var usersString = 'This conversation is with '
+    currentOpenedUsers.forEach(user => {
+        usersString+=user.Name;
+    });
     var obj = {
         "$type": "ActionableResource_21",
         "Id": "8a360d87-7ed7-4bea-8846-a807903d0e73",
         "DescriptionList": [
-            "Hello and welcome on stream list"
+            `${usersString}`
         ],
         "ActionList": [
             {
