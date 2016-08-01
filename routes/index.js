@@ -43,15 +43,17 @@ router.get('/actionableResource/:actionableResourceId', (req, res) => {
     //     '$type': 'ActionableResource_21',
     //     'Id': uuid.v4()
     // };
-    var usersString = 'This conversation is with '
+    var usersString = [];
     currentOpenedUsers.forEach(user => {
-        usersString+=user.Name;
+        usersString.push(user.Name);
     });
+    usersString = usersString.join(', ');
+    console.log(usersString, "USERS...");
     var obj = {
         "$type": "ActionableResource_21",
         "Id": "8a360d87-7ed7-4bea-8846-a807903d0e73",
         "DescriptionList": [
-            `${usersString}`
+            `This conversation is with: ${usersString}`
         ],
         "ActionList": [
             {

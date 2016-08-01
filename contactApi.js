@@ -6,12 +6,7 @@ var http = require("http");
 var _ = require('lodash');
 var querystring = require('querystring');
 var calendar = require('./calendar');
-var moment = require('moment');
-var extractionController = require('./controllers/extractionController');
-var externalAPIController = require('./controllers/externalAPIController');
-var utils = require('./utils');
-
-config = {
+var config = {
     apiUrl: 'clean-sprint-app.4thoffice.com',
     authToken: 'Bearer 4ddb73e7-0074-7494-fe19-75b219319bf8'
 };
@@ -19,9 +14,13 @@ var request = require('request');
 var conversationConfig = {
     email: 'denkomanceski@gmail.com',
     userId: '8a360d87-7ed7-4bea-8846-a807903d0e73',
-    conversationIdentity: 'A1_20f0a67d5ce841a1b409e6e98f76602d',
+    conversationIdentity: 'A1_69800f3e2b88424f956cf7dd5232ebf9',
     conversationWith: 'uzupan@marg.si'
 };
+
+var extractionController = require('./controllers/extractionController');
+var externalAPIController = require('./controllers/externalAPIController');
+var utils = require('./utils');
 
 var ACTION = {
     SKY_SCANNER: 0,
@@ -78,7 +77,7 @@ var sendChatMessageByEmail = (email, content, cb) => {
     })
 
 };
-var sendChatMessageByFeedIdentity = (feedIdentity, content) => {
+var sendChatMessageByFeedIdentity = (feedIdentity, content, callback) => {
     //logMsg(res.Id);
     var options = {
         host: config.apiUrl,
@@ -97,7 +96,8 @@ var sendChatMessageByFeedIdentity = (feedIdentity, content) => {
             logMsg(`BODY: ${chunk}`);
         });
         res.on('end', (err, data) => {
-            logMsg('No more data in response.');
+            if (callback)callback(data);
+            logMsg('No more data in response.')
         })
     });
 
@@ -183,14 +183,14 @@ var fetchMessages = () => {
 };
 
 var interval;
-function startPolling(conversationIdentity){
+function startPolling(conversationIdentity) {
     lastActionCode = '';
     lastActionContent = '';
     lastProcessedMessage = '';
-    if(interval){
+    if (interval) {
         clearInterval(interval);
     }
-    if(conversationIdentity){
+    if (conversationIdentity) {
         conversationConfig.conversationIdentity = conversationIdentity;
     }
     interval = setInterval(function () {
@@ -199,13 +199,13 @@ function startPolling(conversationIdentity){
 }
 var parseAction = function (chunk) {
     console.log("Parsing...", JSON.stringify(chunk));
-    var newParsedMessage = utils.replaceBreakWithNewline(_.get(chunk, 'DiscussionListPage.DiscussionList[0].Post.Text'));
+    var newParsedMessage = _.get(chunk, 'DiscussionListPage.DiscussionList[0].Post.Text', undefined);
     if (newParsedMessage && newParsedMessage != lastProcessedMessage) {
         // process new parsed message
-        logMsg("Processing message: " + newParsedMessage);
         processAction(newParsedMessage, function (messageToSend) {
-            lastProcessedMessage = messageToSend;
-            sendChatMessageByFeedIdentity(conversationConfig.conversationIdentity, messageToSend);
+            sendChatMessageByFeedIdentity(conversationConfig.conversationIdentity, messageToSend, function () {
+                lastProcessedMessage = messageToSend;
+            });
         });
 
         // set new parsed message as last processed message
@@ -268,7 +268,7 @@ var processAction = (action, cb) => {
                     "Would you also like me to check for AirBnb?");
                 break;
             case ACTION.GOOGLE_CALENDAR:
-                calendar.insertEvent('kristjansesek@gmail.com', {
+                calendar.insertEvent('denkomanceski@gmail.com', {
                     'summary': '4th Office Meeting',
                     'description': 'This event was added by Scarlett.',
                     'start': {
@@ -278,21 +278,13 @@ var processAction = (action, cb) => {
                         'dateTime': new Date(),
                     },
                 }, (success) => {
-                    if (success) {
-                        var meetingLocation = "Baker Street"; // TODO: make this dynamic
-                        cb('A meeting on ' + lastActionContent + ' added to calendar.\n\n' +
-                            'Would you also like me to find transportation for your meeting on ' + meetingLocation + " at " + lastActionContent + "?");
-                        lastActionCode = ACTION.CITY_MAPPER;
-                    }
+                    if (success)
+                        cb('A meeting on ' + lastActionContent + ' added to calendar.');
                 });
                 break;
             case ACTION.AIR_BNB:
                 var airBnbUrl = `https://www.airbnb.co.uk/s/${lastActionContent[1].code}?guests=1&checkin=31-07-2016&checkout=30-08-2016&s_tag=1nkLc9tK`;
                 cb('Here are the cheapest AirBnb flats that I found in ' + utils.capitalizeFirstLetter(lastActionContent[1].name) + ":\n" + airBnbUrl);
-                clearLastAction();
-                break;
-            case ACTION.CITY_MAPPER:
-
                 clearLastAction();
                 break;
         }
@@ -324,10 +316,11 @@ var processAction = (action, cb) => {
 // });
 
 getUserId('denkomanceski@gmail.com', (res) => {
-    console.log(JSON.stringify(res), "RESSS...");;
+    console.log(JSON.stringify(res), "RESSS...");
+    ;
 });
 
-function getUsersByStreamID(streamId, cb){
+function getUsersByStreamID(streamId, cb) {
     var options = {
         url: `http://${config.apiUrl}/api/stream/${streamId}`,
         headers: {
@@ -340,11 +333,12 @@ function getUsersByStreamID(streamId, cb){
         var data = JSON.parse(body);
         console.log(JSON.stringify(data));
         var members = [];
-        data.Members.forEach(member => {
-            if(member.id != conversationConfig.userId)
-                members.push(member);
-        });
-        cb(data);
+        if (data.Members)
+            data.Members.forEach(member => {
+                if (member.id != conversationConfig.userId)
+                    members.push(member);
+            });
+        cb(members);
     })
 }
 
@@ -354,5 +348,13 @@ var logMsg = function (content) {
     }
 };
 
+getUsersByStreamID('A1_20f0a67d5ce841a1b409e6e98f76602d', users => {
+    var string = [];
+    users.forEach(user => {
+        string.push(user.Name);
+    });
+    string = string.join(', ');
+    console.log(string);
+})
 exports.startPolling = startPolling;
 exports.getUsersByStreamID = getUsersByStreamID;
