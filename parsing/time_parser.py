@@ -31,24 +31,13 @@ def parse_time(content):
 
 def example_timex_tag():
     """Example for testing timex."""
-    return timex_tag('Belfast up and coming band Cashier are playing a free gig in the Mercantile tomorrow at 9:30pm.')
+    return timex_parsed('Belfast up and coming band Cashier are playing a free gig in the Mercantile tomorrow at 9:30pm.')
 
 
 def example_dateutil():
     """Example for testing dateutil."""
-    content = timex_tag('Belfast up and coming band Cashier are playing a free gig in the Mercantile tomorrow at 9:30pm.')
-    return parse_time(content)
-
-
-def should_parse_tomorrow():
-    print "tomorrow"
-    print str(datetime.date.today() + datetime.timedelta(days=1))
-    print str(parse_time('We are going to meet tomorrow at 9:30pm'));
-
-def should_parse_today():
-    print "today"
-    print str(datetime.date.today())
-    print str(parse_time('We are going to meet today at 9:30pm'));
+    content = timex_parsed('Belfast up and coming band Cashier are playing a free gig in the Mercantile tomorrow at 9:30pm.')
+    return dateutil_parsed(content)
 
 if __name__ == "__main__":
     if(len(sys.argv) >= 2 and sys.argv[1]=='debug'):
