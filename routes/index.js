@@ -6,13 +6,13 @@ var startPolling = require('../contactApi').startPolling;
 var getUsersByStreamID = require('../contactApi').getUsersByStreamID;
 var lastAction = require('../controllers/actionController');
 
-// startPolling();
+startPolling();
 var currentOpenedUsers = [];
 var lastContextId = '';
 //var crconsole = require('crconsole');
 /* GET home page. */
 router.get('/lastContext', (req, res) => {
-    res.send(lastAction);
+    res.send({lastActionCode: lastAction.lastActionCode, lastActionContent: lastAction.lastActionContent});
 });
 router.get('/actionableResource/availability', (req, res) => {
     // var obj = {
