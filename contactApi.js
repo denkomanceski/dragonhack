@@ -6,21 +6,22 @@ var http = require("http");
 var _ = require('lodash');
 var querystring = require('querystring');
 var calendar = require('./calendar');
-var config = {
+var moment = require('moment');
+var extractionController = require('./controllers/extractionController');
+var externalAPIController = require('./controllers/externalAPIController');
+var utils = require('./utils');
+
+config = {
     apiUrl: 'clean-sprint-app.4thoffice.com',
-    authToken: 'Bearer 06d9739a-042b-40bb-1c21-b5e07d552662'
+    authToken: 'Bearer 4ddb73e7-0074-7494-fe19-75b219319bf8'
 };
 
 var conversationConfig = {
     email: 'denkomanceski@gmail.com',
     userId: '8a360d87-7ed7-4bea-8846-a807903d0e73',
-    conversationIdentity: 'A1_5b026989dc734be29cab0782aadfa5dc',
+    conversationIdentity: 'A1_20f0a67d5ce841a1b409e6e98f76602d',
     conversationWith: 'uzupan@marg.si'
 };
-
-var extractionController = require('./controllers/extractionController');
-var externalAPIController = require('./controllers/externalAPIController');
-var utils = require('./utils');
 
 var ACTION = {
     SKY_SCANNER: 0,
@@ -77,7 +78,7 @@ var sendChatMessageByEmail = (email, content, cb) => {
     })
 
 };
-var sendChatMessageByFeedIdentity = (feedIdentity, content, callback) => {
+var sendChatMessageByFeedIdentity = (feedIdentity, content) => {
     //logMsg(res.Id);
     var options = {
         host: config.apiUrl,
@@ -96,8 +97,7 @@ var sendChatMessageByFeedIdentity = (feedIdentity, content, callback) => {
             logMsg(`BODY: ${chunk}`);
         });
         res.on('end', (err, data) => {
-            if (callback)callback(data);
-            logMsg('No more data in response.')
+            logMsg('No more data in response.');
         })
     });
 
@@ -185,13 +185,13 @@ setInterval(function () {
 }, 3000);
 
 var parseAction = function (chunk) {
-    var newParsedMessage = _.get(chunk, 'DiscussionListPage.DiscussionList[0].Post.Text', undefined);
+    var newParsedMessage = utils.replaceBreakWithNewline(_.get(chunk, 'DiscussionListPage.DiscussionList[0].Post.Text'));
     if (newParsedMessage && newParsedMessage != lastProcessedMessage) {
         // process new parsed message
+        logMsg("Processing message: " + newParsedMessage);
         processAction(newParsedMessage, function (messageToSend) {
-            sendChatMessageByFeedIdentity(conversationConfig.conversationIdentity, messageToSend, function () {
-                lastProcessedMessage = messageToSend;
-            });
+            lastProcessedMessage = messageToSend;
+            sendChatMessageByFeedIdentity(conversationConfig.conversationIdentity, messageToSend);
         });
 
         // set new parsed message as last processed message
@@ -254,7 +254,7 @@ var processAction = (action, cb) => {
                     "Would you also like me to check for AirBnb?");
                 break;
             case ACTION.GOOGLE_CALENDAR:
-                calendar.insertEvent('denkomanceski@gmail.com', {
+                calendar.insertEvent('kristjansesek@gmail.com', {
                     'summary': '4th Office Meeting',
                     'description': 'This event was added by Scarlett.',
                     'start': {
@@ -264,13 +264,21 @@ var processAction = (action, cb) => {
                         'dateTime': new Date(),
                     },
                 }, (success) => {
-                    if (success)
-                        cb('A meeting on ' + lastActionText + ' added to calendar.');
+                    if (success) {
+                        var meetingLocation = "Baker Street"; // TODO: make this dynamic
+                        cb('A meeting on ' + lastActionContent + ' added to calendar.\n\n' +
+                            'Would you also like me to find transportation for your meeting on ' + meetingLocation + " at " + lastActionContent + "?");
+                        lastActionCode = ACTION.CITY_MAPPER;
+                    }
                 });
                 break;
             case ACTION.AIR_BNB:
                 var airBnbUrl = `https://www.airbnb.co.uk/s/${lastActionContent[1].code}?guests=1&checkin=31-07-2016&checkout=30-08-2016&s_tag=1nkLc9tK`;
                 cb('Here are the cheapest AirBnb flats that I found in ' + utils.capitalizeFirstLetter(lastActionContent[1].name) + ":\n" + airBnbUrl);
+                clearLastAction();
+                break;
+            case ACTION.CITY_MAPPER:
+
                 clearLastAction();
                 break;
         }
