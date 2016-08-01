@@ -86,9 +86,9 @@ function currentlyRunning(events){
     });
     return activeEvent;
 }
-listEvents((events) => {
-    console.log(JSON.stringify(currentlyRunning(events)));
-});
+// listEvents((events) => {
+//     console.log(JSON.stringify(currentlyRunning(events)));
+// });
 
 console.log(":)");
 exports.passport = passport;
