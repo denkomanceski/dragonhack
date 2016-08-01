@@ -184,6 +184,7 @@ var fetchMessages = () => {
 
 var interval;
 function startPolling(conversationIdentity){
+    console.log(`Changing polling identity to: ${conversationIdentity}`);
     lastActionCode = '';
     lastActionContent = '';
     lastProcessedMessage = '';
