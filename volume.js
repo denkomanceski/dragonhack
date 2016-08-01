@@ -13,7 +13,7 @@ var setVolume = function(volume, cb){
 
 exec('ls', function(error, stdout, stderr) {
     // command output is in stdout
-    console.log("Done..");
+    console.log("Done..s");
 })
 var OfficeTab;
 Chrome.List((err, tabs) => {
