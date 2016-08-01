@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var uuid = require('node-uuid');
 var passport = require('../calendar').passport;
+
 /* GET home page. */
 router.get('/actionableResource/availability', (req, res) => {
     // var obj = {
@@ -11,13 +12,13 @@ router.get('/actionableResource/availability', (req, res) => {
     // };
     console.log(JSON.stringify(req.query));
     var actionableResourceId = req.query.contextId != 'null' ? `LondonChallengeExample.${req.query.contextType}.${req.query.contextId}`: `LondonChallengeExample.${req.query.contextType}`
-    console.log(`Sending...is ${req.query.contextId != 'null'} ...`);
+    console.log(`Sending...is ${req.query.contextId != 'null'} -> ${actionableResourceId} ...`);
     var obj = {
         "ActionableResourceId": actionableResourceId,
         "Mode": "Action",
         "$type": "ActionableResourceAvailability_20"
     };
-    res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.17+json');
+    res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.18+json');
     res.send(obj)
 });
 router.get('/actionableResource/:actionableResourceId', (req, res) => {
@@ -57,7 +58,7 @@ router.get('/actionableResource/:actionableResourceId', (req, res) => {
             }
         ]
     };
-    res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.17+json')
+    res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.18+json')
     res.send(obj)
 });
 
@@ -96,7 +97,7 @@ router.post('/action', (req, res) => {
             // }
         ]
     };
-    res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.17+json');
+    res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.18+json');
     res.send(obj);
 });
 

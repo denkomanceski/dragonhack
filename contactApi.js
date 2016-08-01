@@ -5,7 +5,7 @@ var debug = true;
 var http = require("http");
 var _ = require('lodash');
 var querystring = require('querystring');
-
+var calendar = require('./calendar');
 var config = {
     apiUrl: 'clean-sprint-app.4thoffice.com',
     authToken: 'Bearer 06d9739a-042b-40bb-1c21-b5e07d552662'
@@ -254,9 +254,19 @@ var processAction = (action, cb) => {
                     "Would you also like me to check for AirBnb?");
                 break;
             case ACTION.GOOGLE_CALENDAR:
-                cb('A meeting on ' + lastActionContent + ' added to calendar.');
-                // TODO: add event to calendar meeting
-                clearLastAction();
+                calendar.insertEvent('denkomanceski@gmail.com', {
+                    'summary': '4th Office Meeting',
+                    'description': 'This event was added by Scarlett.',
+                    'start': {
+                        'dateTime': new Date(),
+                    },
+                    'end': {
+                        'dateTime': new Date(),
+                    },
+                }, (success) => {
+                    if (success)
+                        cb('A meeting on ' + lastActionText + ' added to calendar.');
+                });
                 break;
             case ACTION.AIR_BNB:
                 var airBnbUrl = `https://www.airbnb.co.uk/s/${lastActionContent[1].code}?guests=1&checkin=31-07-2016&checkout=30-08-2016&s_tag=1nkLc9tK`;
