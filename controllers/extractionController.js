@@ -9,7 +9,7 @@ var cityNamesDictinary = [
 
 module.exports = {
     extractDateTime: function (content, callback) {
-        PythonShell.run('/parsing/time_parser.py', {
+        PythonShell.run('../parsing/time_parser.py', {
             args: content
         }, callback);
     },
