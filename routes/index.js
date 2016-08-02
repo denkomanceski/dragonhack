@@ -101,11 +101,12 @@ router.post('/action', (req, res) => {
     var obj = {};
     switch(req.body.ActionList[0].Id.split('_')[1]) {
         case 'meeting':
-            //obj = actionController.meetingFlow('', req.body.ActionList[0].Id) || req.body;
+            obj = actionController.meetingFlow('', req.body.ActionList[0].Id) || req.body;
+            break;
+        case 'travel':
             obj = actionController.travelFlow('', req.body.ActionList[0].Id) || req.body;
             break;
     }
-
     res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.17+json');
     res.send(obj);
 });
