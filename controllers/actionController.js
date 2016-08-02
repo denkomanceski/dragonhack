@@ -47,12 +47,12 @@ module.exports = {
             switch (ACTION_KEYWORD[key]) {
                 case ACTION_KEYWORD.HELLO:
                     //cb('Hi boss, what would you like me to do for you :)');
-                    cb('')
+                   // cb('');
                     app.io.emit('action', {lastActionCode: -1, lastActionContent: 'Hello'});
                     break;
                 case ACTION_KEYWORD.GREETING:
                     //cb('I am feeling great, I have you');
-                    cb('')
+                   // cb('');
                     break;
                 case ACTION_KEYWORD.MEETING:
                     externalServiceRunning = true;
@@ -63,7 +63,7 @@ module.exports = {
                         lastActionCode = NEXT_ACTION.GOOGLE_CALENDAR;
                         // cb('I noticed you are planning a meeting on ' + results[0]
                         //     + '. Would you like me to add a meeting to calendar and send invitation?');
-                        cb('')
+                       // cb('')
 
                         // TODO: dynamic location extraction
                         lastActionContent = {datetime: results[0], location: "Baker Street"};
@@ -76,7 +76,7 @@ module.exports = {
                     lastActionContent = action;
                     app.io.emit('action', {lastActionCode, lastActionContent});
                     //cb('I noticed you plan to travel. Do you want me to check for available flights?');
-                    cb('')
+                    //cb('')
                     break;
                 case ACTION_KEYWORD.YES:
                     switch (lastActionCode) {
@@ -130,3 +130,4 @@ module.exports = {
 
 exports.lastActionContent = lastActionContent;
 exports.lastActionCode = lastActionCode;
+exports.ACTION_KEYWORD = ACTION_KEYWORD;
