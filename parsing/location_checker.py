@@ -14,7 +14,7 @@ def check(word, file_name=london_file):
     """Check for word in London street file."""
     file = open(file_name)
     if findWholeWord(word)(file.read()):
-        print True
+        print True, word
 
 
 def get_lat_long(place_string):
