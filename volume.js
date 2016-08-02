@@ -2,7 +2,14 @@ var exec = require('child_process').exec;
 var Chrome = require('chrome-remote-interface');
 var request = require('request');
 var socket = require('socket.io-client')('http://46.101.221.106:3001');
-var ACTION_KEYWORD = require('./controllers/actionController');
+var ACTION_KEYWORD = {
+    TRAVELING: 'to go from',
+    MEETING: 'meet',
+    HELLO: 'hello',
+    GREETING: 'how are you',
+    YES: 'yes',
+    NO: 'no'
+};
 socket.on('connect', () => {
     console.log("Connected...");
 });

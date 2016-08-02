@@ -48,7 +48,7 @@ module.exports = {
                 case ACTION_KEYWORD.HELLO:
                     //cb('Hi boss, what would you like me to do for you :)');
                    // cb('');
-                    app.io.emit('action', {lastActionCode: -1, lastActionContent: 'Hello'});
+                    app.io.emit('action', {lastActionCode: ACTION_KEYWORD.HELLO, lastActionContent: 'Hello'});
                     break;
                 case ACTION_KEYWORD.GREETING:
                     //cb('I am feeling great, I have you');
@@ -130,4 +130,3 @@ module.exports = {
 
 exports.lastActionContent = lastActionContent;
 exports.lastActionCode = lastActionCode;
-exports.ACTION_KEYWORD = ACTION_KEYWORD;
