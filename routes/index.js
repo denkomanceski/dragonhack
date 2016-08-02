@@ -82,7 +82,7 @@ router.get('/actionableResource/:actionableResourceId', (req, res) => {
     //     ]
     // };
     res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.17+json')
-    res.send(actionController.meetingFlow('I found something. Do you want me to add to calendar'))
+    res.send(actionController.meetingFlow('I found something. Do you want me to add to calendar') || req.body)
 });
 
 

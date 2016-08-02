@@ -43,7 +43,7 @@ var getCityCodeForName = function (cityName) {
     return _.find(cityNameCodePairs, {name: cityName.toLowerCase()}).code;
 };
 function meetingFlow(description, responseActionId) {
-    var obj = {};
+    var obj = '';
     var positiveResponse
     if (responseActionId)
         positiveResponse = responseActionId.indexOf('yes') != -1;
