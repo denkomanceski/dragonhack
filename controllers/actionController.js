@@ -57,7 +57,7 @@ module.exports = {
                 case ACTION_KEYWORD.MEETING:
                     externalServiceRunning = true;
 
-                    // try to extract the date
+                    // try to extract the dates
                     extractionController.extractDateTime(action, (err, results) => {
                         if (err) throw err;
                         lastActionCode = NEXT_ACTION.GOOGLE_CALENDAR;
