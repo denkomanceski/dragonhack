@@ -24,6 +24,10 @@ var io = require('socket.io')(server);
 io.on('connection', (client) => {
   console.log("Client connected...");
 });
+
+var emit = (eventName, event) => {
+  io.emit(eventName, event);
+};
 /**
  * Listen on provided port, on all network interfaces.
  */
@@ -92,4 +96,4 @@ function onListening() {
   debug('Listening on ' + bind);
 }
 
-exports.io = io;
+exports.emit = emit;
