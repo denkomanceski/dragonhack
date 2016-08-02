@@ -1,7 +1,7 @@
 var extractionController = require('./extractionController');
 var calendar = require('./../calendar');
 var utils = require('./../utils');
-var emit = require('../bin/www').emit;
+var emit;
 var ACTION_KEYWORD = {
     TRAVELING: 'to go from',
     MEETING: 'meet',
@@ -126,3 +126,4 @@ module.exports = {
 
 exports.lastActionContent = lastActionContent;
 exports.lastActionCode = lastActionCode;
+exports.emit = emit;
