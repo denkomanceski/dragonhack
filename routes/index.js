@@ -6,7 +6,7 @@ var startPolling = require('../contactApi').startPolling;
 var getUsersByStreamID = require('../contactApi').getUsersByStreamID;
 var lastAction = require('../controllers/actionController');
 var conversationConfig = require('../controllers/actionController').conversationConfig;
-
+var actionController = require('../controllers/actionController');
 startPolling();
 var currentOpenedUsers = [];
 var lastContextId = '';
@@ -58,31 +58,32 @@ router.get('/actionableResource/:actionableResourceId', (req, res) => {
     });
     usersString = usersString.join(', ');
     console.log(usersString, "USERS...");
-    var obj = {
-        "$type": "ActionableResource_21",
-        "Id": "8a360d87-7ed7-4bea-8846-a807903d0e73",
-        "DescriptionList": [
-            `This conversation is with: ${usersString} \n http://www.google.com`
-        ],
-        "ActionList": [
-            {
-                "ActionType": "Negative",
-                "Name": "Show me next thing",
-                "Id": "turnmeon",
-                "$type": "ActionNextStep_18",
-                "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
-            },
-            {
-                "ActionType": "Positive",
-                "Name": "Bye",
-                "Id": "turnmeoff",
-                "$type": "ActionFinishWorkflow_18",
-                "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
-            }
-        ]
-    };
+    // var obj = {
+    //     "$type": "ActionableResource_21",
+    //     "Id": "8a360d87-7ed7-4bea-8846-a807903d0e73",
+    //     "DescriptionList": [
+    //         `This conversation is with: ${usersString} \n http://www.google.com`
+    //     ],
+    //     "ActionList": [
+    //         {
+    //             "ActionType": "Negative",
+    //             "Name": "Show me next thing",
+    //             "Id": "turnmeon",
+    //             "$type": "ActionNextStep_18",
+    //             "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
+    //         },
+    //         {
+    //             "ActionType": "Positive",
+    //             "Name": "Bye",
+    //             "Id": "turnmeoff",
+    //             "$type": "ActionFinishWorkflow_18",
+    //             "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
+    //         }
+    //     ]
+    // };
     res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.17+json')
-    res.send(obj)
+    //res.send(actionController.meetingFlow('I found this date time and location. Do you want me to create...?    '))
+    res.send(actionController.travelFlow('I noticed you plan to travel......'))
 });
 
 
@@ -97,29 +98,15 @@ router.get('/auth/callback',
     });
 router.post('/action', (req, res) => {
     console.log("post request came", JSON.stringify(req.body));
-    var obj = {
-        "$type": "ActionableResource_21",
-        "Id": "8a360d87-7ed7-4bea-8846-a807903d0e73",
-        "DescriptionList": [
-            "I have nothing for you mate"
-        ],
-        "ActionList": [
-            // {
-            //     "ActionType": "Positive",
-            //     "Name": "Show me next thing",
-            //     "Id": "turnmeon",
-            //     "$type": "ActionNextStep_18",
-            //     "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
-            // },
-            // {
-            //     "ActionType": "Negative",
-            //     "Name": "Bye",
-            //     "Id": "turnmeoff",
-            //     "$type": "ActionFinishWorkflow_18",
-            //     "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
-            // }
-        ]
-    };
+    var obj = {};
+    switch(req.body.ActionList[0].Id.split('_')[1]) {
+        case 'meeting':
+            obj = actionController.meetingFlow('', req.body.ActionList[0].Id) || req.body;
+            break;
+        case 'travel':
+            obj = actionController.travelFlow('', req.body.ActionList[0].Id) || req.body;
+            break;
+    }
     res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.17+json');
     res.send(obj);
 });

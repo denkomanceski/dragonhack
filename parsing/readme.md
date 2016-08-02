@@ -13,3 +13,7 @@ Install nltk modules within an interactive Python shell by calling: `nltk.downlo
 
 Download spacy English grammar (500MB):
 `python -m spacy.en.download`
+
+### OS Open Data
+OS Open Data location names are used under the license: http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/
+

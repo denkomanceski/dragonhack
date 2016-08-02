@@ -18,7 +18,7 @@ var ACTION_KEYWORD = {
     HELLO: 'hello',
     GREETING: 'how are you',
     YES: 'yes',
-    NO: 'no'
+    NO: 'no',
 };
 
 var NEXT_ACTION = {
@@ -43,35 +43,197 @@ var clearLastAction = function () {
     lastActionCode = '';
     lastActionContent = '';
 };
-
 var getCityCodeForName = function (cityName) {
     return _.find(cityNameCodePairs, {name: cityName.toLowerCase()}).code;
 };
 
-module.exports = {
-    processAction: function (action, cb) {
-        // skip processing when external service is running
-        if (externalServiceRunning) {
-            return;
+function travelFlow(description, responseActionId) {
+    var obj = '';
+    var positiveResponse
+    if (responseActionId)
+        positiveResponse = responseActionId.indexOf('yes') != -1;
+    var actions = [
+        {
+            "ActionType": "Positive",
+            "Name": "Yes",
+            "Id": "yesStart_travel",
+            "$type": "ActionNextStep_18",
+            "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
+        },
+        {
+            "ActionType": "Negative",
+            "Name": "No, thanks",
+            "Id": "noStart_travel",
+            "$type": "ActionFinishWorkflow_18",
+            "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
+        },
+        {
+            "ActionType": "Positive",
+            "Name": "Yes please",
+            "Id": "yesAdd_travel",
+            "$type": "ActionNextStep_18",
+            "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
+        },
+        {
+            "ActionType": "Negative",
+            "Name": "No, thanks",
+            "Id": "noAdd_travel",
+            "$type": "ActionFinishWorkflow_18",
+            "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
+        }
+    ];
+    if (description)
+        obj = {
+            "$type": "ActionableResource_21",
+            "Id": "8a360d87-7ed7-4bea-8846-a807903d0e73",
+            "DescriptionList": [
+                // `This conversation is with: ${usersString} \n http://www.google.com`
+                description
+            ],
+            "ActionList": [actions[0], actions[1]]
+        };
+    else if (responseActionId.indexOf('Start') != -1) {
+        if (positiveResponse) {
+            //TODO: I found........ and that which will return string
+            var response = 'Would you also like me to check for AirBNB?';
+            app.io.emit('action', {lastActionCode: ACTION_KEYWORD.TRAVELING});
+            obj = {
+                "$type": "ActionableResource_21",
+                "Id": "8a360d87-7ed7-4bea-8846-a807903d0e73",
+                "DescriptionList": [
+                    // `This conversation is with: ${usersString} \n http://www.google.com`
+                    response
+                ],
+                "ActionList": [actions[2], actions[3]]
+            };
+        }
+    }
+    else if (responseActionId.indexOf('Add') != -1) {
+        if (positiveResponse) {
+            obj = {
+                "$type": "ActionableResource_21",
+                "Id": "8a360d87-7ed7-4bea-8846-a807903d0e73",
+                "DescriptionList": [
+                    // `This conversation is with: ${usersString} \n http://www.google.com`
+                    'Here is the airbnb :).'
+                ],
+                "ActionList": []
+            }
+            setTimeout(() => {
+                app.io.emit('action', {lastActionCode: 'AIRBNB'});
+            }, 1500);
+
         }
 
-        for (var key in ACTION_KEYWORD) {
-            if (!ACTION_KEYWORD.hasOwnProperty(key) || action.toLowerCase().indexOf(ACTION_KEYWORD[key]) == -1) {
-                continue;
-            }
+    }
+    return obj;
 
-            switch (ACTION_KEYWORD[key]) {
-                case ACTION_KEYWORD.HELLO:
-                    //cb('Hi boss, what would you like me to do for you :)');
-                   // cb('');
-                    app.io.emit('action', {lastActionCode: ACTION_KEYWORD.HELLO, lastActionContent: 'Hello'});
-                    break;
-                case ACTION_KEYWORD.GREETING:
-                    //cb('I am feeling great, I have you');
-                   // cb('');
-                    break;
-                case ACTION_KEYWORD.MEETING:
-                    externalServiceRunning = true;
+}
+
+function meetingFlow(description, responseActionId) {
+    var obj = '';
+    var positiveResponse
+    if (responseActionId)
+        positiveResponse = responseActionId.indexOf('yes') != -1;
+    var actions = [
+        {
+            "ActionType": "Positive",
+            "Name": "Yes",
+            "Id": "yesStart_meeting",
+            "$type": "ActionNextStep_18",
+            "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
+        },
+        {
+            "ActionType": "Negative",
+            "Name": "No, thanks",
+            "Id": "noStart_meeting",
+            "$type": "ActionFinishWorkflow_18",
+            "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
+        },
+        {
+            "ActionType": "Positive",
+            "Name": "Yes please",
+            "Id": "yesAdd_meeting",
+            "$type": "ActionNextStep_18",
+            "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
+        },
+        {
+            "ActionType": "Negative",
+            "Name": "No, thanks",
+            "Id": "noAdd_meeting",
+            "$type": "ActionFinishWorkflow_18",
+            "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
+        }
+    ];
+    if (description)
+        obj = {
+            "$type": "ActionableResource_21",
+            "Id": "8a360d87-7ed7-4bea-8846-a807903d0e73",
+            "DescriptionList": [
+                // `This conversation is with: ${usersString} \n http://www.google.com`
+                description
+            ],
+            "ActionList": [actions[0], actions[1]]
+        };
+    else if (responseActionId.indexOf('Start') != -1) {
+        if (positiveResponse) {
+            //TODO: I found........ and that which will return string
+            var response = 'I found this date time and location. Do you want me to create...?';
+            obj = {
+                "$type": "ActionableResource_21",
+                "Id": "8a360d87-7ed7-4bea-8846-a807903d0e73",
+                "DescriptionList": [
+                    // `This conversation is with: ${usersString} \n http://www.google.com`
+                    response
+                ],
+                "ActionList": [actions[2], actions[3]]
+            };
+        }
+    }
+    else if (responseActionId.indexOf('Add') != -1) {
+        if (positiveResponse) {
+            obj = {
+                "$type": "ActionableResource_21",
+                "Id": "8a360d87-7ed7-4bea-8846-a807903d0e73",
+                "DescriptionList": [
+                    // `This conversation is with: ${usersString} \n http://www.google.com`
+                    'Event added to the calendar.'
+                ],
+                "ActionList": []
+            }
+        }
+
+    }
+    return obj;
+}
+function processAction(action, cb) {
+
+    /*geocoder.geocode('29 champs elysée paris', function (err, res) {
+     console.log(res);
+     });*/
+
+    // skip processing when external service is running
+    if (externalServiceRunning) {
+        return;
+    }
+
+    for (var key in ACTION_KEYWORD) {
+        if (!ACTION_KEYWORD.hasOwnProperty(key) || action.toLowerCase().indexOf(ACTION_KEYWORD[key]) == -1) {
+            continue;
+        }
+
+        switch (ACTION_KEYWORD[key]) {
+            case ACTION_KEYWORD.HELLO:
+                //cb('Hi boss, what would you like me to do for you :)');
+                // cb('');
+               // app.io.emit('action', {lastActionCode: ACTION_KEYWORD.HELLO, lastActionContent: 'Hello'});
+                break;
+            case ACTION_KEYWORD.GREETING:
+                //cb('I am feeling great, I have you');
+                // cb('');
+                break;
+            case ACTION_KEYWORD.MEETING:
+                externalServiceRunning = true;
 
                     extractionController.extractMeetingData(action, function (error, result) {
                         lastActionContent = {
@@ -91,10 +253,10 @@ module.exports = {
                             app.io.emit('action', {lastActionCode, lastActionContent});
                         }
 
-                        externalServiceRunning = false;
-                    });
-                    break;
-                case ACTION_KEYWORD.TRAVELING:
+                    externalServiceRunning = false;
+                });
+                break;
+            case ACTION_KEYWORD.TRAVELING:
 
                     // start extracting data, because it takes some time before its done
                     externalServiceRunning = true;
@@ -102,29 +264,29 @@ module.exports = {
                         // result[0][0] is result from datetime parsing and result[1] is result from location parsing
                         var source, destination;
 
-                        if (result[1].length > 1) {
-                            source = result[1][0];
-                            destination = result[1][1];
-                        } else {
-                            source = 'London'; // TODO: extract current location
-                            destination = result[1][0];
-                        }
+                    if (result[1].length > 1) {
+                        source = result[1][0];
+                        destination = result[1][1];
+                    } else {
+                        source = 'London'; // TODO: extract current location
+                        destination = result[1][0];
+                    }
 
-                        lastActionContent = {
-                            datetime: moment(result[0][0]),
-                            firstLocation: source,
-                            secondLocation: destination
-                        };
+                    lastActionContent = {
+                        datetime: moment(result[0][0]),
+                        firstLocation: source,
+                        secondLocation: destination
+                    };
 
-                        if (lastActionContent.firstLocation && lastActionContent.secondLocation && lastActionContent.datetime) {
-                            lastActionCode = NEXT_ACTION.SKY_SCANNER;
-                            cb('I noticed you plan to travel from ' + source + ' to ' + destination + (lastActionContent.datetime ? ' on ' + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') : '') + '. ' +
-                                'Do you want me to check for available flights?');
-                            app.io.emit('action', {lastActionCode, lastActionContent});
-                        }
+                    if (lastActionContent.firstLocation && lastActionContent.secondLocation && lastActionContent.datetime) {
+                        lastActionCode = NEXT_ACTION.SKY_SCANNER;
+                        cb('I noticed you plan to travel from ' + source + ' to ' + destination + (lastActionContent.datetime ? ' on ' + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') : '') + '. ' +
+                            'Do you want me to check for available flights?');
+                        //app.io.emit('action', {lastActionCode, lastActionContent});
+                    }
 
-                        externalServiceRunning = false;
-                    });
+                    externalServiceRunning = false;
+                });
 
                     break;
                 case ACTION_KEYWORD.YES:
@@ -177,3 +339,6 @@ module.exports = {
 
 exports.lastActionContent = lastActionContent;
 exports.lastActionCode = lastActionCode;
+exports.meetingFlow = meetingFlow;
+exports.processAction = processAction;
+exports.travelFlow = travelFlow;
