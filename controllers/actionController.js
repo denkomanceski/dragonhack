@@ -92,7 +92,7 @@ function travelFlow(description, responseActionId) {
         if (positiveResponse) {
             //TODO: I found........ and that which will return string
             var response = 'Would you also like me to check for AirBNB?';
-            app.io.emit('event', {coming_soon: 1});
+            app.io.emit('action', {lastActionCode: ACTION_KEYWORD.TRAVELING});
             obj = {
                 "$type": "ActionableResource_21",
                 "Id": "8a360d87-7ed7-4bea-8846-a807903d0e73",

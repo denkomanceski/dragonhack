@@ -17,7 +17,7 @@ socket.on('action', action => {
     console.log(JSON.stringify(action));
     switch (action.lastActionCode) {
         case ACTION_KEYWORD.TRAVELING:
-
+            embedIframe('random');
             break;
         case ACTION_KEYWORD.MEETING:
 
