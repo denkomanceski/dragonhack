@@ -1,7 +1,7 @@
 var extractionController = require('./extractionController');
 var calendar = require('./../calendar');
 var utils = require('./../utils');
-var emit;
+var app = require('../bin/www');
 var ACTION_KEYWORD = {
     TRAVELING: 'to go from',
     MEETING: 'meet',
@@ -47,7 +47,7 @@ module.exports = {
             switch (ACTION_KEYWORD[key]) {
                 case ACTION_KEYWORD.HELLO:
                     cb('Hi boss, what would you like me to do for you :)');
-                    emit('action', {lastActionCode: -1, lastActionContent: 'Hello'});
+                    app.io.emit('action', {lastActionCode: -1, lastActionContent: 'Hello'});
                     break;
                 case ACTION_KEYWORD.GREETING:
                     cb('I am feeling great, I have you');
@@ -126,4 +126,3 @@ module.exports = {
 
 exports.lastActionContent = lastActionContent;
 exports.lastActionCode = lastActionCode;
-exports.emit = emit;

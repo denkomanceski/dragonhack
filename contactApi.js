@@ -138,7 +138,7 @@ var getUserId = (email, cb) => {
 var fetchMessages = () => {
     var postData = querystring.stringify({
         'feedscope': 'Card',
-        'feedidentity': conversationConfig.conversationIdentity,
+        'feedidentity': 'A1_62dc9561d5f24a329d548d709918474f',
         'size': 10,
         'offset': 0
     });
