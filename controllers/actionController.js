@@ -113,8 +113,9 @@ function meetingFlow(description, responseActionId) {
                 ]
             }
         }
-        return obj;
+
     }
+    return obj;
 }
 function processAction(action, cb) {
 
