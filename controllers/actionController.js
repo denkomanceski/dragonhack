@@ -1,6 +1,7 @@
 var extractionController = require('./extractionController');
 var calendar = require('./../calendar');
 var utils = require('./../utils');
+var app = require('../bin/www');
 var moment = require('moment');
 var _ = require('lodash');
 var NodeGeocoder = require('node-geocoder');
@@ -62,10 +63,13 @@ module.exports = {
 
             switch (ACTION_KEYWORD[key]) {
                 case ACTION_KEYWORD.HELLO:
-                    cb('Hi boss, what would you like me to do for you :)');
+                    //cb('Hi boss, what would you like me to do for you :)');
+                   // cb('');
+                    app.io.emit('action', {lastActionCode: ACTION_KEYWORD.HELLO, lastActionContent: 'Hello'});
                     break;
                 case ACTION_KEYWORD.GREETING:
-                    cb('I am feeling great, I have you');
+                    //cb('I am feeling great, I have you');
+                   // cb('');
                     break;
                 case ACTION_KEYWORD.MEETING:
                     externalServiceRunning = true;
@@ -82,6 +86,9 @@ module.exports = {
                             lastActionCode = NEXT_ACTION.GOOGLE_CALENDAR;
                             cb('I noticed you are planning a meeting on ' + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') + " in " + lastActionContent.secondLocation
                                 + '. Would you like me to add a meeting to calendar and send invitations?');
+                            app.io.emit('action', {lastActionCode, lastActionContent});
+
+
                         }
 
                         externalServiceRunning = false;
@@ -113,6 +120,7 @@ module.exports = {
                             lastActionCode = NEXT_ACTION.SKY_SCANNER;
                             cb('I noticed you plan to travel from ' + source + ' to ' + destination + (lastActionContent.datetime ? ' on ' + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') : '') + '. ' +
                                 'Do you want me to check for available flights?');
+                            app.io.emit('action', {lastActionCode, lastActionContent});
                         }
 
                         externalServiceRunning = false;
@@ -166,3 +174,6 @@ module.exports = {
         }
     }
 };
+
+exports.lastActionContent = lastActionContent;
+exports.lastActionCode = lastActionCode;

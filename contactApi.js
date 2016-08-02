@@ -32,12 +32,13 @@ var sendMailMessage = (email, title, content) => {
             'X-Impersonate-User': conversationConfig.userId
         }
     };
+
     var req = http.request(options, (res) => {
         res.setEncoding('utf8');
         res.on('data', (chunk) => {
-            //utils.logMsg(`BODY: ${chunk}`);
+            utils.logMsg(`BODY: ${chunk}`);
         });
-        res.on('end', () => {
+        res.on('end', (err, data) => {
             utils.logMsg('No more data in response.')
         })
     });
@@ -136,7 +137,7 @@ var getUserId = (email, cb) => {
 };
 var fetchMessages = () => {
     var postData = querystring.stringify({
-        'feedscope': 'ChatStream',
+        'feedscope': 'Card',
         'feedidentity': conversationConfig.conversationIdentity,
         'size': 10,
         'offset': 0
@@ -161,7 +162,7 @@ var fetchMessages = () => {
             //utils.logMsg(`BODY: ${chunk}`);
         });
         res.on('end', () => {
-            console.log("DATA:" + JSON.stringify(data));
+            //console.log("DATA:" + JSON.stringify(data));
             return parseAction(JSON.parse(data));
             utils.logMsg('No more data in response.');
         })
@@ -187,8 +188,12 @@ function startPolling(conversationIdentity) {
 
 var lastProcessedMessage = '';
 var parseAction = function (chunk) {
-    utils.logMsg("Parsing...", JSON.stringify(chunk));
-    var newParsedMessage = utils.replaceBreakWithNewline(_.get(chunk, 'DiscussionListPage.DiscussionList[0].Post.Text'));
+    // utils.logMsg("Parsing...", JSON.stringify(chunk));
+    var len = _.get(chunk, 'DiscussionListPage.DiscussionList[0].PostListPage.Posts.length', undefined);
+    var newParsedMessage = '';
+    if (len)
+        newParsedMessage = utils.replaceBreakWithNewline(_.get(chunk, `DiscussionListPage.DiscussionList[0].PostListPage.Posts[${len-1}].Text`));
+    console.log(newParsedMessage, "parsed..");
     if (newParsedMessage && newParsedMessage != lastProcessedMessage) {
 
         // set new parsed message as last processed message
@@ -208,10 +213,10 @@ var parseAction = function (chunk) {
 //     utils.logMsg(JSON.stringify(data));
 // });
 
-getUserId('denkomanceski@gmail.com', (res) => {
-    console.log(JSON.stringify(res), "RESSS...");
-});
-
+// getUserId('denkomanceski@gmail.com', (res) => {
+//     console.log(JSON.stringify(res), "RESSS...");
+// });
+sendMailMessage('kristjansesek@gmail.com', 'hello', 'hello');
 function getUsersByStreamID(streamId, cb) {
     var options = {
         url: `http://${config.apiUrl}/api/stream/${streamId}`,
@@ -245,5 +250,7 @@ getUsersByStreamID('A1_20f0a67d5ce841a1b409e6e98f76602d', users => {
     string = string.join(', ');
     console.log(string);
 });
+
 exports.startPolling = startPolling;
 exports.getUsersByStreamID = getUsersByStreamID;
+exports.conversationConfig = conversationConfig
