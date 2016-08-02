@@ -5,6 +5,7 @@ var passport = require('../calendar').passport;
 var startPolling = require('../contactApi').startPolling;
 var getUsersByStreamID = require('../contactApi').getUsersByStreamID;
 var lastAction = require('../controllers/actionController');
+var conversationConfig = require('../controllers/actionController').conversationConfig;
 
 startPolling();
 var currentOpenedUsers = [];

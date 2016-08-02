@@ -138,7 +138,7 @@ var getUserId = (email, cb) => {
 var fetchMessages = () => {
     var postData = querystring.stringify({
         'feedscope': 'Card',
-        'feedidentity': 'A1_b16f3b59e5864e9f943cc97b77c926bf',
+        'feedidentity': conversationConfig.conversationIdentity,
         'size': 10,
         'offset': 0
     });
@@ -253,3 +253,4 @@ getUsersByStreamID('A1_20f0a67d5ce841a1b409e6e98f76602d', users => {
 
 exports.startPolling = startPolling;
 exports.getUsersByStreamID = getUsersByStreamID;
+exports.conversationConfig = conversationConfig
