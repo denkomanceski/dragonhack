@@ -115,7 +115,10 @@ function travelFlow(description, responseActionId) {
                 ],
                 "ActionList": []
             }
-             app.io.emit('action', {lastActionCode: 'AIRBNB'});
+            setTimeout(() => {
+                app.io.emit('action', {lastActionCode: 'AIRBNB'});
+            }, 1500);
+
         }
 
     }

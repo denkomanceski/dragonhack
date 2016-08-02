@@ -32,7 +32,7 @@ socket.on('action', action => {
         case ACTION_KEYWORD.YES:
 
             break;
-        case AIRBNB:
+        case ACTION_KEYWORD.AIRBNB:
             appendIframe('https://www.airbnb.co.uk');
             break;
     }
