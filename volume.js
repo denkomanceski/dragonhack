@@ -3,12 +3,13 @@ var Chrome = require('chrome-remote-interface');
 var request = require('request');
 var socket = require('socket.io-client')('http://46.101.221.106:3001');
 var ACTION_KEYWORD = {
-    TRAVELING: 'to go from',
+    TRAVELING: 'travel',
     MEETING: 'meet',
     HELLO: 'hello',
     GREETING: 'how are you',
     YES: 'yes',
-    NO: 'no'
+    NO: 'no',
+    AIRBNB: "AIRBNB"
 };
 socket.on('connect', () => {
     console.log("Connected...");
@@ -17,7 +18,7 @@ socket.on('action', action => {
     console.log(JSON.stringify(action));
     switch (action.lastActionCode) {
         case ACTION_KEYWORD.TRAVELING:
-            embedIframe('random');
+            appendIframe('https://www.skyscanner.net');
             break;
         case ACTION_KEYWORD.MEETING:
 
@@ -31,8 +32,8 @@ socket.on('action', action => {
         case ACTION_KEYWORD.YES:
 
             break;
-        case ACTION_KEYWORD.NO:
-
+        case AIRBNB:
+            appendIframe('https://www.airbnb.co.uk');
             break;
     }
 });
@@ -51,9 +52,10 @@ exec('ls', function (error, stdout, stderr) {
     console.log("Done..s");
 })
 var myTab;
-var embedIframe = (url) => {
+
+var findTab = (cb) => {
     if (myTab)
-        eval(myTab)
+        cb(myTab)
     else
         Chrome.List((err, tabs) => {
             tabs.forEach(tab => {
@@ -63,11 +65,29 @@ var embedIframe = (url) => {
             });
             Chrome(OfficeTab, (tab) => {
                 myTab = tab;
-                eval(myTab);
+                cb(myTab);
             });
         });
 }
-function eval(tab) {
+
+var embedIframe = (url) => {
+    findTab(tab => {
+        evalEmbed(tab);
+    })
+};
+var appendIframe = (url) => {
+    findTab(tab => {
+        evalAppend(tab, url);
+    })
+};
+var evalAppend = (tab, url) => {
+    tab.Runtime.evaluate({
+        expression: `$( ".action-list" ).after( "<iframe src='${url}' style='height: 350px; margin-top: 20px; margin-bottom: 20px; width: 100%;'>" )`
+    }, (err, resp) => {
+        console.log("??");
+    })
+}
+function evalEmbed(tab) {
     tab.Runtime.evaluate({expression: "document.getElementsByClassName('open-scarlett')[0].click()"}, function (err, resp) {
         setTimeout(() => {
             tab.Runtime.evaluate({

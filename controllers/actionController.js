@@ -14,7 +14,7 @@ var ACTION_KEYWORD = {
     HELLO: 'hello',
     GREETING: 'how are you',
     YES: 'yes',
-    NO: 'no'
+    NO: 'no',
 };
 
 var NEXT_ACTION = {
@@ -115,6 +115,7 @@ function travelFlow(description, responseActionId) {
                 ],
                 "ActionList": []
             }
+             app.io.emit('action', {lastActionCode: 'AIRBNB'});
         }
 
     }
