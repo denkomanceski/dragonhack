@@ -83,7 +83,7 @@ router.get('/actionableResource/:actionableResourceId', (req, res) => {
     // };
     res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.17+json')
     //res.send(actionController.meetingFlow('I found this date time and location. Do you want me to create...?    '))
-    res.send(actionController.travelFlow('I found this date time and location. Do you want me to create...?    '))
+    res.send(actionController.travelFlow('I noticed you plan to travel......'))
 });
 
 
