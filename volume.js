@@ -82,6 +82,15 @@ var appendIframe = (url) => {
         //evalEmbed(tab);
     })
 };
+var blinkScarlet = function(){
+  findTab(tab => {
+      tab.Runtime.evaluate({
+          expression: `$(".open-scarlett").addClass("active")`
+      }, (err, resp) => {
+          console.log("??");
+      })
+  })
+};
 var evalAppend = (tab, url) => {
     tab.Runtime.evaluate({
         expression: `$(".scarlet-content").append("<iframe src='${url}' style='height: 350px; margin-top: 20px; margin-bottom: 20px; width: 100%;'></iframe>")`
@@ -101,5 +110,7 @@ function evalEmbed(tab) {
     });
 }
 var OfficeTab;
-embedIframe()
+//embedIframe()
 exports.setVolume = setVolume;
+
+blinkScarlet();
