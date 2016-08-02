@@ -72,7 +72,7 @@ function meetingFlow(description, responseActionId) {
         };
     else {
         actions.forEach(action => {
-            if(action.id == responseActionId) {
+            if(action.Id == responseActionId) {
                 //TODO: I found........ and that which will return string
                 var response = 'I found this and that and this'
                 obj = {
