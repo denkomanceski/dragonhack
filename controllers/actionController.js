@@ -39,10 +39,73 @@ var clearLastAction = function () {
     lastActionCode = '';
     lastActionContent = '';
 };
-
 var getCityCodeForName = function (cityName) {
     return _.find(cityNameCodePairs, {name: cityName.toLowerCase()}).code;
 };
+function meetingFlow(description, responseActionId) {
+    var obj = {};
+    var actions = [
+        {
+            "ActionType": "Positive",
+            "Name": "Yes_meeting",
+            "Id": "yes",
+            "$type": "ActionNextStep_18",
+            "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
+        },
+        {
+            "ActionType": "Negative",
+            "Name": "No, thanks",
+            "Id": "no_meeting",
+            "$type": "ActionFinishWorkflow_18",
+            "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
+        }
+    ];
+    if (description)
+        obj = {
+            "$type": "ActionableResource_21",
+            "Id": "8a360d87-7ed7-4bea-8846-a807903d0e73",
+            "DescriptionList": [
+                // `This conversation is with: ${usersString} \n http://www.google.com`
+                description
+            ],
+            "ActionList": actions
+        };
+    else {
+        actions.forEach(action => {
+            if(action.id == responseActionId) {
+                //TODO: I found........ and that which will return string
+                var response = 'I found this and that and this'
+                obj = {
+                    "$type": "ActionableResource_21",
+                    "Id": "8a360d87-7ed7-4bea-8846-a807903d0e73",
+                    "DescriptionList": [
+                        // `This conversation is with: ${usersString} \n http://www.google.com`
+                        response
+                    ],
+                    "ActionList": [
+                        {
+                            "ActionType": "Positive",
+                            "Name": "Yes please",
+                            "Id": "yesAdd_meeting",
+                            "$type": "ActionNextStep_18",
+                            "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
+                        },
+                        {
+                            "ActionType": "Negative",
+                            "Name": "No, thanks",
+                            "Id": "noAdd_meeting",
+                            "$type": "ActionFinishWorkflow_18",
+                            "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
+                        }
+                    ]
+                };
+            }
+        })
+
+    }
+    return obj;
+}
+
 
 module.exports = {
     processAction: function (action, cb) {
@@ -64,12 +127,12 @@ module.exports = {
             switch (ACTION_KEYWORD[key]) {
                 case ACTION_KEYWORD.HELLO:
                     //cb('Hi boss, what would you like me to do for you :)');
-                   // cb('');
+                    // cb('');
                     app.io.emit('action', {lastActionCode: ACTION_KEYWORD.HELLO, lastActionContent: 'Hello'});
                     break;
                 case ACTION_KEYWORD.GREETING:
                     //cb('I am feeling great, I have you');
-                   // cb('');
+                    // cb('');
                     break;
                 case ACTION_KEYWORD.MEETING:
                     externalServiceRunning = true;
@@ -177,3 +240,4 @@ module.exports = {
 
 exports.lastActionContent = lastActionContent;
 exports.lastActionCode = lastActionCode;
+exports.meetingFlow = meetingFlow;
