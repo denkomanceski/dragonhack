@@ -226,7 +226,7 @@ function processAction(action, cb) {
             case ACTION_KEYWORD.HELLO:
                 //cb('Hi boss, what would you like me to do for you :)');
                 // cb('');
-               // app.io.emit('action', {lastActionCode: ACTION_KEYWORD.HELLO, lastActionContent: 'Hello'});
+                // app.io.emit('action', {lastActionCode: ACTION_KEYWORD.HELLO, lastActionContent: 'Hello'});
                 break;
             case ACTION_KEYWORD.GREETING:
                 //cb('I am feeling great, I have you');
@@ -235,34 +235,34 @@ function processAction(action, cb) {
             case ACTION_KEYWORD.MEETING:
                 externalServiceRunning = true;
 
-                    extractionController.extractMeetingData(action, function (error, result) {
-                        lastActionContent = {
-                            datetime: moment(result[0][0]),
-                            firstLocation: START_LOCATION,
-                            secondLocation: {
-                                name: result[1][0],
-                                latitude: result[1][1],
-                                longitude: result[1][2]
-                            }
-                        };
-
-                        if (lastActionContent.datetime && lastActionContent.firstLocation.name && lastActionContent.secondLocation.name) {
-                            lastActionCode = NEXT_ACTION.GOOGLE_CALENDAR;
-                            cb('I noticed you are planning a meeting on ' + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') + " in " + lastActionContent.secondLocation.name
-                                + '. Would you like me to add a meeting to calendar and send invitations?');
-                            app.io.emit('action', {lastActionCode, lastActionContent});
+                extractionController.extractMeetingData(action, function (error, result) {
+                    lastActionContent = {
+                        datetime: moment(result[0][0]),
+                        firstLocation: START_LOCATION,
+                        secondLocation: {
+                            name: result[1][0],
+                            latitude: result[1][1],
+                            longitude: result[1][2]
                         }
+                    };
+
+                    if (lastActionContent.datetime && lastActionContent.firstLocation.name && lastActionContent.secondLocation.name) {
+                        lastActionCode = NEXT_ACTION.GOOGLE_CALENDAR;
+                        cb('I noticed you are planning a meeting on ' + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') + " in " + lastActionContent.secondLocation.name
+                            + '. Would you like me to add a meeting to calendar and send invitations?');
+                        app.io.emit('action', {lastActionCode, lastActionContent});
+                    }
 
                     externalServiceRunning = false;
                 });
                 break;
             case ACTION_KEYWORD.TRAVELING:
 
-                    // start extracting data, because it takes some time before its done
-                    externalServiceRunning = true;
-                    extractionController.extractTravelData(action, function (error, result) {
-                        // result[0][0] is result from datetime parsing and result[1] is result from location parsing
-                        var source, destination;
+                // start extracting data, because it takes some time before its done
+                externalServiceRunning = true;
+                extractionController.extractTravelData(action, function (error, result) {
+                    // result[0][0] is result from datetime parsing and result[1] is result from location parsing
+                    var source, destination;
 
                     if (result[1].length > 1) {
                         source = result[1][0];
@@ -288,54 +288,53 @@ function processAction(action, cb) {
                     externalServiceRunning = false;
                 });
 
-                    break;
-                case ACTION_KEYWORD.YES:
-                    switch (lastActionCode) {
-                        case NEXT_ACTION.SKY_SCANNER:
-                            lastActionCode = NEXT_ACTION.AIR_BNB;
-                            var skyScannerUrl = `https://www.skyscanner.net/transport/flights/${getCityCodeForName(lastActionContent.firstLocation)}/${getCityCodeForName(lastActionContent.secondLocation)}?selectedoday=${lastActionContent.datetime.format('DD')}&oym=${lastActionContent.datetime.format('YYMM')}`;
-                            cb('Here are the cheapest flights I found:\n' + skyScannerUrl + "\n\n" +
-                                "Would you also like me to check for AirBnB?");
-                            break;
-                        case NEXT_ACTION.AIR_BNB:
-                            var airBnbUrl = `https://www.airbnb.co.uk/s/${lastActionContent.secondLocation}?guests=1&checkin=${lastActionContent.datetime.format('DD-MM-YYYY')}&s_tag=1nkLc9tK`;
-                            cb('Here are the cheapest AirBnB flats that I found in ' + lastActionContent.secondLocation + " for " + lastActionContent.datetime.format('YYYY-MM-DD') + ":\n\n" + airBnbUrl);
-                            clearLastAction();
-                            break;
-                        case NEXT_ACTION.GOOGLE_CALENDAR:
+                break;
+            case ACTION_KEYWORD.YES:
+                switch (lastActionCode) {
+                    case NEXT_ACTION.SKY_SCANNER:
+                        lastActionCode = NEXT_ACTION.AIR_BNB;
+                        var skyScannerUrl = `https://www.skyscanner.net/transport/flights/${getCityCodeForName(lastActionContent.firstLocation)}/${getCityCodeForName(lastActionContent.secondLocation)}?selectedoday=${lastActionContent.datetime.format('DD')}&oym=${lastActionContent.datetime.format('YYMM')}`;
+                        cb('Here are the cheapest flights I found:\n' + skyScannerUrl + "\n\n" +
+                            "Would you also like me to check for AirBnB?");
+                        break;
+                    case NEXT_ACTION.AIR_BNB:
+                        var airBnbUrl = `https://www.airbnb.co.uk/s/${lastActionContent.secondLocation}?guests=1&checkin=${lastActionContent.datetime.format('DD-MM-YYYY')}&s_tag=1nkLc9tK`;
+                        cb('Here are the cheapest AirBnB flats that I found in ' + lastActionContent.secondLocation + " for " + lastActionContent.datetime.format('YYYY-MM-DD') + ":\n\n" + airBnbUrl);
+                        clearLastAction();
+                        break;
+                    case NEXT_ACTION.GOOGLE_CALENDAR:
 
-                            calendar.insertEvent('kristjansesek@gmail.com', {
-                                'summary': 'Meeting',
-                                'description': 'This event was added by Scarlett.',
-                                'start': {
-                                    'dateTime': lastActionContent.datetime.format()
-                                },
-                                'end': {
-                                    'dateTime': lastActionContent.datetime.add(1, 'hour').format()
-                                },
-                                'location': lastActionContent.secondLocation.name
-                            }, (success) => {
-                                if (success) {
-                                    cb('A meeting on ' + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') + ' at ' + lastActionContent.secondLocation.name + ' added to calendar.\n\n' +
-                                        'Would you also like me to find transportation for your meeting at ' + lastActionContent.secondLocation.name + ' ' + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') + '?');
-                                    lastActionCode = NEXT_ACTION.CITY_MAPPER;
-                                }
-                            });
-                            break;
-                        case NEXT_ACTION.CITY_MAPPER:
-                            var cityMapperUrl = `https://citymapper.com/directions?endaddress=${lastActionContent.secondLocation.name}&endcoord=${lastActionContent.secondLocation.latitude},${lastActionContent.secondLocation.longitude}&startaddress=${lastActionContent.firstLocation.name.replace(" ", "+")}&startcoord=${lastActionContent.firstLocation.latitude},${lastActionContent.firstLocation.longitude}`;
-                            cb('Here is the best transportation that I found for ' + lastActionContent.secondLocation.name + " at " + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') + ":\n\n" + cityMapperUrl);
-                            clearLastAction();
-                            break;
-                    }
-                    break;
-                case ACTION_KEYWORD.NO:
-                    clearLastAction();
-                    break;
-            }
+                        calendar.insertEvent('kristjansesek@gmail.com', {
+                            'summary': 'Meeting',
+                            'description': 'This event was added by Scarlett.',
+                            'start': {
+                                'dateTime': lastActionContent.datetime.format()
+                            },
+                            'end': {
+                                'dateTime': lastActionContent.datetime.add(1, 'hour').format()
+                            },
+                            'location': lastActionContent.secondLocation.name
+                        }, (success) => {
+                            if (success) {
+                                cb('A meeting on ' + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') + ' at ' + lastActionContent.secondLocation.name + ' added to calendar.\n\n' +
+                                    'Would you also like me to find transportation for your meeting at ' + lastActionContent.secondLocation.name + ' ' + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') + '?');
+                                lastActionCode = NEXT_ACTION.CITY_MAPPER;
+                            }
+                        });
+                        break;
+                    case NEXT_ACTION.CITY_MAPPER:
+                        var cityMapperUrl = `https://citymapper.com/directions?endaddress=${lastActionContent.secondLocation.name}&endcoord=${lastActionContent.secondLocation.latitude},${lastActionContent.secondLocation.longitude}&startaddress=${lastActionContent.firstLocation.name.replace(" ", "+")}&startcoord=${lastActionContent.firstLocation.latitude},${lastActionContent.firstLocation.longitude}`;
+                        cb('Here is the best transportation that I found for ' + lastActionContent.secondLocation.name + " at " + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') + ":\n\n" + cityMapperUrl);
+                        clearLastAction();
+                        break;
+                }
+                break;
+            case ACTION_KEYWORD.NO:
+                clearLastAction();
+                break;
         }
     }
-};
+}
 
 exports.lastActionContent = lastActionContent;
 exports.lastActionCode = lastActionCode;
