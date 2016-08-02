@@ -51,14 +51,14 @@ function meetingFlow(description, responseActionId) {
         {
             "ActionType": "Positive",
             "Name": "Yes",
-            "Id": "yes_meeting",
+            "Id": "yesStart_meeting",
             "$type": "ActionNextStep_18",
             "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
         },
         {
             "ActionType": "Negative",
             "Name": "No, thanks",
-            "Id": "no_meeting",
+            "Id": "noStart_meeting",
             "$type": "ActionFinishWorkflow_18",
             "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
         },
@@ -87,7 +87,7 @@ function meetingFlow(description, responseActionId) {
             ],
             "ActionList": [actions[0], actions[1]]
         };
-    else if (responseActionId.indexOf('meeting') != -1) {
+    else if (responseActionId.indexOf('Start') != -1) {
         if (positiveResponse) {
             //TODO: I found........ and that which will return string
             var response = 'I found this and that and this.. confirm and invite?';
