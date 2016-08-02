@@ -4,9 +4,13 @@ var utils = require('./../utils');
 var app = require('../bin/www');
 var moment = require('moment');
 var _ = require('lodash');
-var NodeGeocoder = require('node-geocoder');
-var geocoder = NodeGeocoder({provider: 'google'});
 
+// TODO: get it dynamically
+var START_LOCATION = {
+    name: 'Canary Wharf',
+    latitude: 51.501,
+    longitude: -0.037
+};
 
 var ACTION_KEYWORD = {
     TRAVELING: 'travel',
@@ -222,7 +226,7 @@ function processAction(action, cb) {
             case ACTION_KEYWORD.HELLO:
                 //cb('Hi boss, what would you like me to do for you :)');
                 // cb('');
-               // app.io.emit('action', {lastActionCode: ACTION_KEYWORD.HELLO, lastActionContent: 'Hello'});
+                // app.io.emit('action', {lastActionCode: ACTION_KEYWORD.HELLO, lastActionContent: 'Hello'});
                 break;
             case ACTION_KEYWORD.GREETING:
                 //cb('I am feeling great, I have you');
@@ -231,21 +235,22 @@ function processAction(action, cb) {
             case ACTION_KEYWORD.MEETING:
                 externalServiceRunning = true;
 
-                extractionController.extractData(action, function (error, result) {
-
+                extractionController.extractMeetingData(action, function (error, result) {
                     lastActionContent = {
                         datetime: moment(result[0][0]),
-                        firstLocation: 'Canary Wharf', // TODO: extract user's current location
-                        secondLocation: result[1]
+                        firstLocation: START_LOCATION,
+                        secondLocation: {
+                            name: result[1][0],
+                            latitude: result[1][1],
+                            longitude: result[1][2]
+                        }
                     };
 
-                    if (lastActionContent.datetime && lastActionContent.firstLocation && lastActionContent.secondLocation) {
+                    if (lastActionContent.datetime && lastActionContent.firstLocation.name && lastActionContent.secondLocation.name) {
                         lastActionCode = NEXT_ACTION.GOOGLE_CALENDAR;
-                        cb('I noticed you are planning a meeting on ' + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') + " in " + lastActionContent.secondLocation
+                        cb('I noticed you are planning a meeting on ' + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') + " in " + lastActionContent.secondLocation.name
                             + '. Would you like me to add a meeting to calendar and send invitations?');
-                   //     app.io.emit('action', {lastActionCode, lastActionContent});
-
-
+                        app.io.emit('action', {lastActionCode, lastActionContent});
                     }
 
                     externalServiceRunning = false;
@@ -255,7 +260,7 @@ function processAction(action, cb) {
 
                 // start extracting data, because it takes some time before its done
                 externalServiceRunning = true;
-                extractionController.extractData(action, function (error, result) {
+                extractionController.extractTravelData(action, function (error, result) {
                     // result[0][0] is result from datetime parsing and result[1] is result from location parsing
                     var source, destination;
 
@@ -294,7 +299,7 @@ function processAction(action, cb) {
                         break;
                     case NEXT_ACTION.AIR_BNB:
                         var airBnbUrl = `https://www.airbnb.co.uk/s/${lastActionContent.secondLocation}?guests=1&checkin=${lastActionContent.datetime.format('DD-MM-YYYY')}&s_tag=1nkLc9tK`;
-                        cb('Here are the cheapest AirBnB flats that I found in ' + lastActionContent.secondLocation + " for " + lastActionContent.datetime.format('DD-MM-YYYY') + ":\n\n" + airBnbUrl);
+                        cb('Here are the cheapest AirBnB flats that I found in ' + lastActionContent.secondLocation + " for " + lastActionContent.datetime.format('YYYY-MM-DD') + ":\n\n" + airBnbUrl);
                         clearLastAction();
                         break;
                     case NEXT_ACTION.GOOGLE_CALENDAR:
@@ -308,18 +313,18 @@ function processAction(action, cb) {
                             'end': {
                                 'dateTime': lastActionContent.datetime.add(1, 'hour').format()
                             },
-                            'location': lastActionContent.secondLocation
+                            'location': lastActionContent.secondLocation.name
                         }, (success) => {
                             if (success) {
-                                cb('A meeting on ' + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') + ' at ' + lastActionContent.secondLocation + 'added to calendar.\n\n' +
-                                    'Would you also like me to find transportation for your meeting at ' + lastActionContent.secondLocation + ' ' + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') + '?');
+                                cb('A meeting on ' + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') + ' at ' + lastActionContent.secondLocation.name + ' added to calendar.\n\n' +
+                                    'Would you also like me to find transportation for your meeting at ' + lastActionContent.secondLocation.name + ' ' + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') + '?');
                                 lastActionCode = NEXT_ACTION.CITY_MAPPER;
                             }
                         });
                         break;
                     case NEXT_ACTION.CITY_MAPPER:
-                        var cityMapperUrl = "https://citymapper.com/directions?endaddress=Baker+St%2C+Marylebone%2C+London%2C+UK&endcoord=51.52061%2C-0.15685&endname=Baker+St%2C+Marylebone%2C+London%2C+UK&startaddress=68-80+Hanbury+St%2C+London+E1+5JL%2C+UK&startcoord=51.520138%2C-0.07031340000003183";
-                        cb('Here is the best transportation that I found for ' + lastActionContent.secondLocation + " at " + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') + ":\n\n" + cityMapperUrl);
+                        var cityMapperUrl = `https://citymapper.com/directions?endaddress=${lastActionContent.secondLocation.name}&endcoord=${lastActionContent.secondLocation.latitude},${lastActionContent.secondLocation.longitude}&startaddress=${lastActionContent.firstLocation.name.replace(" ", "+")}&startcoord=${lastActionContent.firstLocation.latitude},${lastActionContent.firstLocation.longitude}`;
+                        cb('Here is the best transportation that I found for ' + lastActionContent.secondLocation.name + " at " + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') + ":\n\n" + cityMapperUrl);
                         clearLastAction();
                         break;
                 }
@@ -335,4 +340,4 @@ exports.lastActionContent = lastActionContent;
 exports.lastActionCode = lastActionCode;
 exports.meetingFlow = meetingFlow;
 exports.processAction = processAction;
-exports.travelFlow = travelFlow
+exports.travelFlow = travelFlow;

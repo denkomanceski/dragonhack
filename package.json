@@ -18,7 +18,6 @@
     "moment": "^2.14.1",
     "moment-range": "^2.2.0",
     "morgan": "~1.6.1",
-    "node-geocoder": "^3.13.1",
     "node-uuid": "^1.4.7",
     "passport": "^0.3.2",
     "passport-google-oauth": "^1.0.0",
