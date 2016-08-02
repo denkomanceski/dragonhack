@@ -42,6 +42,86 @@ var clearLastAction = function () {
 var getCityCodeForName = function (cityName) {
     return _.find(cityNameCodePairs, {name: cityName.toLowerCase()}).code;
 };
+
+function travelFlow(description, responseActionId) {
+    var obj = '';
+    var positiveResponse
+    if (responseActionId)
+        positiveResponse = responseActionId.indexOf('yes') != -1;
+    var actions = [
+        {
+            "ActionType": "Positive",
+            "Name": "Yes",
+            "Id": "yesStart_travel",
+            "$type": "ActionNextStep_18",
+            "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
+        },
+        {
+            "ActionType": "Negative",
+            "Name": "No, thanks",
+            "Id": "noStart_travel",
+            "$type": "ActionFinishWorkflow_18",
+            "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
+        },
+        {
+            "ActionType": "Positive",
+            "Name": "Yes please",
+            "Id": "yesAdd_travel",
+            "$type": "ActionNextStep_18",
+            "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
+        },
+        {
+            "ActionType": "Negative",
+            "Name": "No, thanks",
+            "Id": "noAdd_travel",
+            "$type": "ActionFinishWorkflow_18",
+            "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
+        }
+    ];
+    if (description)
+        obj = {
+            "$type": "ActionableResource_21",
+            "Id": "8a360d87-7ed7-4bea-8846-a807903d0e73",
+            "DescriptionList": [
+                // `This conversation is with: ${usersString} \n http://www.google.com`
+                description
+            ],
+            "ActionList": [actions[0], actions[1]]
+        };
+    else if (responseActionId.indexOf('Start') != -1) {
+        if (positiveResponse) {
+            //TODO: I found........ and that which will return string
+            var response = 'Would you also like me to check for AirBNB?';
+            app.io.emit('event', {coming_soon: 1});
+            obj = {
+                "$type": "ActionableResource_21",
+                "Id": "8a360d87-7ed7-4bea-8846-a807903d0e73",
+                "DescriptionList": [
+                    // `This conversation is with: ${usersString} \n http://www.google.com`
+                    response
+                ],
+                "ActionList": [actions[2], actions[3]]
+            };
+        }
+    }
+    else if (responseActionId.indexOf('Add') != -1) {
+        if (positiveResponse) {
+            obj = {
+                "$type": "ActionableResource_21",
+                "Id": "8a360d87-7ed7-4bea-8846-a807903d0e73",
+                "DescriptionList": [
+                    // `This conversation is with: ${usersString} \n http://www.google.com`
+                    'Here is the airbnb :).'
+                ],
+                "ActionList": []
+            }
+        }
+
+    }
+    return obj;
+
+}
+
 function meetingFlow(description, responseActionId) {
     var obj = '';
     var positiveResponse
@@ -90,7 +170,7 @@ function meetingFlow(description, responseActionId) {
     else if (responseActionId.indexOf('Start') != -1) {
         if (positiveResponse) {
             //TODO: I found........ and that which will return string
-            var response = 'I found this and that and this.. confirm and invite?';
+            var response = 'I found this date time and location. Do you want me to create...?';
             obj = {
                 "$type": "ActionableResource_21",
                 "Id": "8a360d87-7ed7-4bea-8846-a807903d0e73",
@@ -247,7 +327,8 @@ function processAction(action, cb) {
     }
 }
 
-    exports.lastActionContent = lastActionContent;
-    exports.lastActionCode = lastActionCode;
-    exports.meetingFlow = meetingFlow;
-    exports.processAction = processAction;
+exports.lastActionContent = lastActionContent;
+exports.lastActionCode = lastActionCode;
+exports.meetingFlow = meetingFlow;
+exports.processAction = processAction;
+exports.travelFlow = travelFlow
