@@ -46,11 +46,13 @@ module.exports = {
 
             switch (ACTION_KEYWORD[key]) {
                 case ACTION_KEYWORD.HELLO:
-                    cb('Hi boss, what would you like me to do for you :)');
+                    //cb('Hi boss, what would you like me to do for you :)');
+                    cb('')
                     app.io.emit('action', {lastActionCode: -1, lastActionContent: 'Hello'});
                     break;
                 case ACTION_KEYWORD.GREETING:
-                    cb('I am feeling great, I have you');
+                    //cb('I am feeling great, I have you');
+                    cb('')
                     break;
                 case ACTION_KEYWORD.MEETING:
                     externalServiceRunning = true;
@@ -59,20 +61,22 @@ module.exports = {
                     extractionController.extractDateTime(action, (err, results) => {
                         if (err) throw err;
                         lastActionCode = NEXT_ACTION.GOOGLE_CALENDAR;
-                        cb('I noticed you are planning a meeting on ' + results[0]
-                            + '. Would you like me to add a meeting to calendar and send invitation?');
-
+                        // cb('I noticed you are planning a meeting on ' + results[0]
+                        //     + '. Would you like me to add a meeting to calendar and send invitation?');
+                        cb('')
 
                         // TODO: dynamic location extraction
                         lastActionContent = {datetime: results[0], location: "Baker Street"};
-                        io.emit('action', {lastActionCode, lastActionContent});
+                        app.io.emit('action', {lastActionCode, lastActionContent});
                         externalServiceRunning = false;
                     });
                     break;
                 case ACTION_KEYWORD.TRAVELING:
                     lastActionCode = NEXT_ACTION.SKY_SCANNER;
                     lastActionContent = action;
-                    cb('I noticed you plan to travel. Do you want me to check for available flights?');
+                    app.io.emit('action', {lastActionCode, lastActionContent});
+                    //cb('I noticed you plan to travel. Do you want me to check for available flights?');
+                    cb('')
                     break;
                 case ACTION_KEYWORD.YES:
                     switch (lastActionCode) {
