@@ -40,7 +40,10 @@ def ner(input_string):
     input_string = utf8(input_string)
     parsed_sentence = nlu(input_string)
     for entity in parsed_sentence.ents:
-        print entity.label, entity.label_, ' '.join(t.orth_ for t in entity)
+        # print only cities and countries (label_ == GPE or label == 350
+        if entity.label == 350:
+            print ' '.join(t.orth_ for t in entity)
+
 
 def test_examples():
     with open("example.txt") as f:
@@ -59,5 +62,3 @@ if __name__ == "__main__":
         test_examples()
     else:
         ner(args.text[0])
-        print "Something happened"
-
