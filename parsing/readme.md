@@ -15,5 +15,6 @@ Download spacy English grammar (500MB):
 `python -m spacy.en.download`
 
 ### OS Open Data
+Please download into the parsing folder otherwise location checker won't work.
 OS Open Data location names are used under the license: http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/
 
