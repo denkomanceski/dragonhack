@@ -47,6 +47,7 @@ module.exports = {
             switch (ACTION_KEYWORD[key]) {
                 case ACTION_KEYWORD.HELLO:
                     cb('Hi boss, what would you like me to do for you :)');
+                    io.emit('action', {lastActionCode: -1, lastActionContent: 'Hello'});
                     break;
                 case ACTION_KEYWORD.GREETING:
                     cb('I am feeling great, I have you');
