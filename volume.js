@@ -50,25 +50,26 @@ var setVolume = function (volume, cb) {
 exec('ls', function (error, stdout, stderr) {
     // command output is in stdout
     console.log("Done..s");
-})
+});
 var myTab;
 
 var findTab = (cb) => {
     if (myTab)
-        cb(myTab)
+        cb(myTab);
     else
         Chrome.List((err, tabs) => {
-            tabs.forEach(tab => {
-                if (tab.url.indexOf('4thoffice') != -1) {
-                    OfficeTab = tab;
+            for (var i = 0; i < tabs.length; i++)
+                if (tabs[i].url.indexOf('4thoffice.com') != -1) {
+                    OfficeTab = tabs[i];
+                    break;
                 }
-            });
             Chrome(OfficeTab, (tab) => {
                 myTab = tab;
                 cb(myTab);
             });
         });
 }
+
 
 var embedIframe = (url) => {
     findTab(tab => {
@@ -87,7 +88,7 @@ var evalAppend = (tab, url) => {
     }, (err, resp) => {
         console.log("??");
     })
-}
+};
 function evalEmbed(tab) {
     tab.Runtime.evaluate({expression: "document.getElementsByClassName('open-scarlett')[0].click()"}, function (err, resp) {
         setTimeout(() => {
@@ -100,5 +101,5 @@ function evalEmbed(tab) {
     });
 }
 var OfficeTab;
-
+embedIframe()
 exports.setVolume = setVolume;
