@@ -78,11 +78,12 @@ var embedIframe = (url) => {
 var appendIframe = (url) => {
     findTab(tab => {
         evalAppend(tab, url);
+        //evalEmbed(tab);
     })
 };
 var evalAppend = (tab, url) => {
     tab.Runtime.evaluate({
-        expression: `$( ".action-list" ).after( "<iframe src='${url}' style='height: 350px; margin-top: 20px; margin-bottom: 20px; width: 100%;'>" )`
+        expression: `$(".scarlet-content").append("<iframe src='${url}' style='height: 350px; margin-top: 20px; margin-bottom: 20px; width: 100%;'></iframe>")`
     }, (err, resp) => {
         console.log("??");
     })
