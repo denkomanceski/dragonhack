@@ -4,9 +4,13 @@ var utils = require('./../utils');
 var app = require('../bin/www');
 var moment = require('moment');
 var _ = require('lodash');
-var NodeGeocoder = require('node-geocoder');
-var geocoder = NodeGeocoder({provider: 'google'});
 
+// TODO: get it dynamically
+var START_LOCATION = {
+    name: 'Canary Wharf',
+    latitude: 51.501,
+    longitude: -0.037
+};
 
 var ACTION_KEYWORD = {
     TRAVELING: 'travel',
@@ -14,7 +18,7 @@ var ACTION_KEYWORD = {
     HELLO: 'hello',
     GREETING: 'how are you',
     YES: 'yes',
-    NO: 'no'
+    NO: 'no',
 };
 
 var NEXT_ACTION = {
@@ -42,8 +46,92 @@ var clearLastAction = function () {
 var getCityCodeForName = function (cityName) {
     return _.find(cityNameCodePairs, {name: cityName.toLowerCase()}).code;
 };
+
+function travelFlow(description, responseActionId) {
+    var obj = '';
+    var positiveResponse
+    if (responseActionId)
+        positiveResponse = responseActionId.indexOf('yes') != -1;
+    var actions = [
+        {
+            "ActionType": "Positive",
+            "Name": "Yes",
+            "Id": "yesStart_travel",
+            "$type": "ActionNextStep_18",
+            "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
+        },
+        {
+            "ActionType": "Negative",
+            "Name": "No, thanks",
+            "Id": "noStart_travel",
+            "$type": "ActionFinishWorkflow_18",
+            "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
+        },
+        {
+            "ActionType": "Positive",
+            "Name": "Yes please",
+            "Id": "yesAdd_travel",
+            "$type": "ActionNextStep_18",
+            "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
+        },
+        {
+            "ActionType": "Negative",
+            "Name": "No, thanks",
+            "Id": "noAdd_travel",
+            "$type": "ActionFinishWorkflow_18",
+            "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
+        }
+    ];
+    if (description)
+        obj = {
+            "$type": "ActionableResource_21",
+            "Id": "8a360d87-7ed7-4bea-8846-a807903d0e73",
+            "DescriptionList": [
+                // `This conversation is with: ${usersString} \n http://www.google.com`
+                description
+            ],
+            "ActionList": [actions[0], actions[1]]
+        };
+    else if (responseActionId.indexOf('Start') != -1) {
+        if (positiveResponse) {
+            //TODO: I found........ and that which will return string
+            var response = 'Would you also like me to check for AirBNB?';
+            app.io.emit('action', {lastActionCode: ACTION_KEYWORD.TRAVELING});
+            obj = {
+                "$type": "ActionableResource_21",
+                "Id": "8a360d87-7ed7-4bea-8846-a807903d0e73",
+                "DescriptionList": [
+                    // `This conversation is with: ${usersString} \n http://www.google.com`
+                    response
+                ],
+                "ActionList": [actions[2], actions[3]]
+            };
+        }
+    }
+    else if (responseActionId.indexOf('Add') != -1) {
+        if (positiveResponse) {
+            obj = {
+                "$type": "ActionableResource_21",
+                "Id": "8a360d87-7ed7-4bea-8846-a807903d0e73",
+                "DescriptionList": [
+                    // `This conversation is with: ${usersString} \n http://www.google.com`
+                    'Here is the airbnb :).'
+                ],
+                "ActionList": []
+            }
+            setTimeout(() => {
+                app.io.emit('action', {lastActionCode: 'AIRBNB'});
+            }, 1500);
+
+        }
+
+    }
+    return obj;
+
+}
+
 function meetingFlow(description, responseActionId) {
-    var obj = {};
+    var obj = '';
     var positiveResponse
     if (responseActionId)
         positiveResponse = responseActionId.indexOf('yes') != -1;
@@ -90,7 +178,7 @@ function meetingFlow(description, responseActionId) {
     else if (responseActionId.indexOf('Start') != -1) {
         if (positiveResponse) {
             //TODO: I found........ and that which will return string
-            var response = 'I found this and that and this.. confirm and invite?';
+            var response = 'I found this date time and location. Do you want me to create...?';
             obj = {
                 "$type": "ActionableResource_21",
                 "Id": "8a360d87-7ed7-4bea-8846-a807903d0e73",
@@ -138,7 +226,7 @@ function processAction(action, cb) {
             case ACTION_KEYWORD.HELLO:
                 //cb('Hi boss, what would you like me to do for you :)');
                 // cb('');
-                app.io.emit('action', {lastActionCode: ACTION_KEYWORD.HELLO, lastActionContent: 'Hello'});
+                // app.io.emit('action', {lastActionCode: ACTION_KEYWORD.HELLO, lastActionContent: 'Hello'});
                 break;
             case ACTION_KEYWORD.GREETING:
                 //cb('I am feeling great, I have you');
@@ -147,21 +235,22 @@ function processAction(action, cb) {
             case ACTION_KEYWORD.MEETING:
                 externalServiceRunning = true;
 
-                extractionController.extractData(action, function (error, result) {
-
+                extractionController.extractMeetingData(action, function (error, result) {
                     lastActionContent = {
                         datetime: moment(result[0][0]),
-                        firstLocation: 'Canary Wharf', // TODO: extract user's current location
-                        secondLocation: result[1]
+                        firstLocation: START_LOCATION,
+                        secondLocation: {
+                            name: result[1][0],
+                            latitude: result[1][1],
+                            longitude: result[1][2]
+                        }
                     };
 
-                    if (lastActionContent.datetime && lastActionContent.firstLocation && lastActionContent.secondLocation) {
+                    if (lastActionContent.datetime && lastActionContent.firstLocation.name && lastActionContent.secondLocation.name) {
                         lastActionCode = NEXT_ACTION.GOOGLE_CALENDAR;
-                        cb('I noticed you are planning a meeting on ' + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') + " in " + lastActionContent.secondLocation
+                        cb('I noticed you are planning a meeting on ' + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') + " in " + lastActionContent.secondLocation.name
                             + '. Would you like me to add a meeting to calendar and send invitations?');
                         app.io.emit('action', {lastActionCode, lastActionContent});
-
-
                     }
 
                     externalServiceRunning = false;
@@ -171,7 +260,7 @@ function processAction(action, cb) {
 
                 // start extracting data, because it takes some time before its done
                 externalServiceRunning = true;
-                extractionController.extractData(action, function (error, result) {
+                extractionController.extractTravelData(action, function (error, result) {
                     // result[0][0] is result from datetime parsing and result[1] is result from location parsing
                     var source, destination;
 
@@ -193,7 +282,7 @@ function processAction(action, cb) {
                         lastActionCode = NEXT_ACTION.SKY_SCANNER;
                         cb('I noticed you plan to travel from ' + source + ' to ' + destination + (lastActionContent.datetime ? ' on ' + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') : '') + '. ' +
                             'Do you want me to check for available flights?');
-                        app.io.emit('action', {lastActionCode, lastActionContent});
+                        //app.io.emit('action', {lastActionCode, lastActionContent});
                     }
 
                     externalServiceRunning = false;
@@ -210,7 +299,7 @@ function processAction(action, cb) {
                         break;
                     case NEXT_ACTION.AIR_BNB:
                         var airBnbUrl = `https://www.airbnb.co.uk/s/${lastActionContent.secondLocation}?guests=1&checkin=${lastActionContent.datetime.format('DD-MM-YYYY')}&s_tag=1nkLc9tK`;
-                        cb('Here are the cheapest AirBnB flats that I found in ' + lastActionContent.secondLocation + " for " + lastActionContent.datetime.format('DD-MM-YYYY') + ":\n\n" + airBnbUrl);
+                        cb('Here are the cheapest AirBnB flats that I found in ' + lastActionContent.secondLocation + " for " + lastActionContent.datetime.format('YYYY-MM-DD') + ":\n\n" + airBnbUrl);
                         clearLastAction();
                         break;
                     case NEXT_ACTION.GOOGLE_CALENDAR:
@@ -224,18 +313,18 @@ function processAction(action, cb) {
                             'end': {
                                 'dateTime': lastActionContent.datetime.add(1, 'hour').format()
                             },
-                            'location': lastActionContent.secondLocation
+                            'location': lastActionContent.secondLocation.name
                         }, (success) => {
                             if (success) {
-                                cb('A meeting on ' + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') + ' at ' + lastActionContent.secondLocation + 'added to calendar.\n\n' +
-                                    'Would you also like me to find transportation for your meeting at ' + lastActionContent.secondLocation + ' ' + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') + '?');
+                                cb('A meeting on ' + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') + ' at ' + lastActionContent.secondLocation.name + ' added to calendar.\n\n' +
+                                    'Would you also like me to find transportation for your meeting at ' + lastActionContent.secondLocation.name + ' ' + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') + '?');
                                 lastActionCode = NEXT_ACTION.CITY_MAPPER;
                             }
                         });
                         break;
                     case NEXT_ACTION.CITY_MAPPER:
-                        var cityMapperUrl = "https://citymapper.com/directions?endaddress=Baker+St%2C+Marylebone%2C+London%2C+UK&endcoord=51.52061%2C-0.15685&endname=Baker+St%2C+Marylebone%2C+London%2C+UK&startaddress=68-80+Hanbury+St%2C+London+E1+5JL%2C+UK&startcoord=51.520138%2C-0.07031340000003183";
-                        cb('Here is the best transportation that I found for ' + lastActionContent.secondLocation + " at " + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') + ":\n\n" + cityMapperUrl);
+                        var cityMapperUrl = `https://citymapper.com/directions?endaddress=${lastActionContent.secondLocation.name}&endcoord=${lastActionContent.secondLocation.latitude},${lastActionContent.secondLocation.longitude}&startaddress=${lastActionContent.firstLocation.name.replace(" ", "+")}&startcoord=${lastActionContent.firstLocation.latitude},${lastActionContent.firstLocation.longitude}`;
+                        cb('Here is the best transportation that I found for ' + lastActionContent.secondLocation.name + " at " + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') + ":\n\n" + cityMapperUrl);
                         clearLastAction();
                         break;
                 }
@@ -247,7 +336,8 @@ function processAction(action, cb) {
     }
 }
 
-    exports.lastActionContent = lastActionContent;
-    exports.lastActionCode = lastActionCode;
-    exports.meetingFlow = meetingFlow;
-    exports.processAction = processAction;
+exports.lastActionContent = lastActionContent;
+exports.lastActionCode = lastActionCode;
+exports.meetingFlow = meetingFlow;
+exports.processAction = processAction;
+exports.travelFlow = travelFlow;
