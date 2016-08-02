@@ -1,8 +1,11 @@
 """Location parsing."""
 import re
 import geocoder
+from os import listdir
+from os.path import isfile, join
+import os
+import csv
 import argparse
-
 
 def findWholeWord(word):
     """Regex to find whole word from string."""
@@ -15,15 +18,34 @@ LOCAL_TOWN = 'London'
 
 def check(word, file_name=LONDON_STREETS):
     """Check for word in London street file."""
-    file = open(file_name)
-    if findWholeWord(word)(file.read()):
-        return word
+    with open(file_name) as f:
+        if findWholeWord(word)(f.read()):
+            return word
 
 
 def get_lat_long(place_string):
     """Geocoder service to receive lat long for places."""
     g = geocoder.google(place_string + " " + LOCAL_TOWN)
-    return g.latlng if g.status == 'OK' else None
+    if g.status == 'OK':
+        return g.latlng
+    else:
+        return None
+
+mydir = os.path.dirname(__file__)
+DATA_DIR = os.path.abspath(os.path.join(mydir, 'opname_csv_gb/DATA'))
+
+
+def find_csvs(word):
+    data_files = [f for f in listdir(DATA_DIR) if isfile(join(DATA_DIR, f))]
+    london_files = [f for f in data_files if "TQ" in f] # TQ code for London
+    for file_name in london_files:
+        with open(os.path.abspath(os.path.join(DATA_DIR, file_name))) as f:
+            reader = csv.reader(f)
+            for row in reader:
+                for column in row:
+                    if findWholeWord(word)(column):
+                        print row
+    return "TT_TT"
 
 
 def get_first_valid_address(input):

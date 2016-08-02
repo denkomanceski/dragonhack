@@ -7,3 +7,5 @@ venv2
 *~
 #
 *.pyc
+# Ordnance Survey data
+parsing/opname_csv_gb/
