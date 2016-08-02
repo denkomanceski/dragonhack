@@ -6,7 +6,9 @@ var socket = require('socket.io-client')('http://46.101.221.106:3001');
 socket.on('connect', () => {
     console.log("Connected...");
 });
-
+socket.on('action', action => {
+    console.log(JSON.stringify(action));
+});
 request('http://46.101.221.106:3001/lastContext', {}, (err, resp, body) => {
     JSON.stringify(body);
 });

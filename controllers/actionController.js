@@ -1,7 +1,7 @@
 var extractionController = require('./extractionController');
 var calendar = require('./../calendar');
 var utils = require('./../utils');
-
+var io = require('../bin/www').io;
 var ACTION_KEYWORD = {
     TRAVELING: 'to go from',
     MEETING: 'meet',
@@ -61,9 +61,10 @@ module.exports = {
                         cb('I noticed you are planning a meeting on ' + results[0]
                             + '. Would you like me to add a meeting to calendar and send invitation?');
 
+
                         // TODO: dynamic location extraction
                         lastActionContent = {datetime: results[0], location: "Baker Street"};
-
+                        io.emit('action', {lastActionCode, lastActionContent});
                         externalServiceRunning = false;
                     });
                     break;
