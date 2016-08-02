@@ -50,23 +50,32 @@ exec('ls', function (error, stdout, stderr) {
     // command output is in stdout
     console.log("Done..s");
 })
+var myTab;
 var embedIframe = (url) => {
-    Chrome.List((err, tabs) => {
-        tabs.forEach(tab => {
-            if (tab.url.indexOf('4thoffice') != -1) {
-                OfficeTab = tab;
-            }
-        });
-        Chrome(OfficeTab, (tab) => {
-            tab.Runtime.evaluate({expression: "document.getElementsByClassName('open-scarlett')[0].click()"}, function (err, resp) {
-                setTimeout(() => {
-                    tab.Runtime.evaluate({
-                        expression: `document.getElementsByClassName('scarlet-content')[0].innerHTML = "<iframe src='https://www.skyscanner.net' style='height: 100%;width: 100%;'></iframe>"`
-                    }, (err, resp) => {
-                    })
-                }, 3000)
+    if (myTab)
+        eval(myTab)
+    else
+        Chrome.List((err, tabs) => {
+            tabs.forEach(tab => {
+                if (tab.url.indexOf('4thoffice') != -1) {
+                    OfficeTab = tab;
+                }
+            });
+            Chrome(OfficeTab, (tab) => {
+                myTab = tab;
+                eval(myTab);
             });
         });
+}
+function eval(tab) {
+    tab.Runtime.evaluate({expression: "document.getElementsByClassName('open-scarlett')[0].click()"}, function (err, resp) {
+        setTimeout(() => {
+            tab.Runtime.evaluate({
+                expression: `document.getElementsByClassName('scarlet-content')[0].innerHTML = "<iframe src='https://www.skyscanner.net' style='height: 100%;width: 100%;'></iframe>"`
+            }, (err, resp) => {
+                console.log("??");
+            })
+        }, 2000)
     });
 }
 var OfficeTab;
