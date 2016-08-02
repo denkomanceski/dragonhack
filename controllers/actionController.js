@@ -110,7 +110,8 @@ function meetingFlow(description, responseActionId) {
                 "DescriptionList": [
                     // `This conversation is with: ${usersString} \n http://www.google.com`
                     'Event added to the calendar.'
-                ]
+                ],
+                "ActionList": []
             }
         }
 
