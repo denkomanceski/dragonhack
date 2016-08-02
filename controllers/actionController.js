@@ -222,7 +222,7 @@ function processAction(action, cb) {
             case ACTION_KEYWORD.HELLO:
                 //cb('Hi boss, what would you like me to do for you :)');
                 // cb('');
-                app.io.emit('action', {lastActionCode: ACTION_KEYWORD.HELLO, lastActionContent: 'Hello'});
+               // app.io.emit('action', {lastActionCode: ACTION_KEYWORD.HELLO, lastActionContent: 'Hello'});
                 break;
             case ACTION_KEYWORD.GREETING:
                 //cb('I am feeling great, I have you');
@@ -243,7 +243,7 @@ function processAction(action, cb) {
                         lastActionCode = NEXT_ACTION.GOOGLE_CALENDAR;
                         cb('I noticed you are planning a meeting on ' + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') + " in " + lastActionContent.secondLocation
                             + '. Would you like me to add a meeting to calendar and send invitations?');
-                        app.io.emit('action', {lastActionCode, lastActionContent});
+                   //     app.io.emit('action', {lastActionCode, lastActionContent});
 
 
                     }
@@ -277,7 +277,7 @@ function processAction(action, cb) {
                         lastActionCode = NEXT_ACTION.SKY_SCANNER;
                         cb('I noticed you plan to travel from ' + source + ' to ' + destination + (lastActionContent.datetime ? ' on ' + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') : '') + '. ' +
                             'Do you want me to check for available flights?');
-                        app.io.emit('action', {lastActionCode, lastActionContent});
+                        //app.io.emit('action', {lastActionCode, lastActionContent});
                     }
 
                     externalServiceRunning = false;
