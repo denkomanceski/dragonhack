@@ -82,7 +82,7 @@ router.get('/actionableResource/:actionableResourceId', (req, res) => {
     //     ]
     // };
     res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.17+json')
-    res.send(actionController.meetingFlow('I found something. Do you want me to add to calendar') || req.body)
+    res.send(actionController.meetingFlow('I found something. Do you want me to add to calendar'))
 });
 
 
@@ -100,7 +100,7 @@ router.post('/action', (req, res) => {
     var obj = {};
     switch(req.body.ActionList[0].Id.split('_')[1]) {
         case 'meeting':
-            obj = actionController.meetingFlow('', req.body.ActionList[0].Id);
+            obj = actionController.meetingFlow('', req.body.ActionList[0].Id) || req.body;
             break;
     }
 
