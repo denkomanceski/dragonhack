@@ -4,17 +4,14 @@ var uuid = require('node-uuid');
 var passport = require('../calendar').passport;
 var startPolling = require('../contactApi').startPolling;
 var getUsersByStreamID = require('../contactApi').getUsersByStreamID;
-var lastAction = require('../controllers/actionController');
-var conversationConfig = require('../controllers/actionController').conversationConfig;
 var actionController = require('../controllers/actionController');
 startPolling();
 var currentOpenedUsers = [];
 var lastContextId = '';
+
 //var crconsole = require('crconsole');
 /* GET home page. */
-router.get('/lastContext', (req, res) => {
-    res.send({lastActionCode: lastAction.lastActionCode, lastActionContent: lastAction.lastActionContent});
-});
+
 router.get('/actionableResource/availability', (req, res) => {
     // var obj = {
     //     '$type': 'ActionableResourceAvailability_20',
@@ -40,50 +37,17 @@ router.get('/actionableResource/availability', (req, res) => {
 });
 router.get('/actionableResource/:actionableResourceId', (req, res) => {
     console.log("request came", JSON.stringify(req.params));
-    // var assistant_chat_bubble = 'Hello and welcome on stream list'
-    //
-    // var next_step = {name: 'Show me next thing', type: 'ActionNextStep_18'}
-    // var close_dialog = {name: 'Bye', type: 'ActionFinishWorkflow_18'}
-    // var actions = [next_step, close_dialog]
-    // var description_list = [assistant_chat_bubble]
-    // var obj = {
-    //     'DescriptionList': description_list,
-    //     'ActionList': actions,
-    //     '$type': 'ActionableResource_21',
-    //     'Id': uuid.v4()
-    // };
-    var usersString = [];
-    currentOpenedUsers.forEach(user => {
-        usersString.push(user.Name);
-    });
-    usersString = usersString.join(', ');
-    console.log(usersString, "USERS...");
-    // var obj = {
-    //     "$type": "ActionableResource_21",
-    //     "Id": "8a360d87-7ed7-4bea-8846-a807903d0e73",
-    //     "DescriptionList": [
-    //         `This conversation is with: ${usersString} \n http://www.google.com`
-    //     ],
-    //     "ActionList": [
-    //         {
-    //             "ActionType": "Negative",
-    //             "Name": "Show me next thing",
-    //             "Id": "turnmeon",
-    //             "$type": "ActionNextStep_18",
-    //             "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
-    //         },
-    //         {
-    //             "ActionType": "Positive",
-    //             "Name": "Bye",
-    //             "Id": "turnmeoff",
-    //             "$type": "ActionFinishWorkflow_18",
-    //             "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
-    //         }
-    //     ]
-    // };
-
+     var obj;
+    switch(actionController.lastActionContent.lastActionCode) {
+        case actionController.NEXT_ACTION.GOOGLE_CALENDAR:
+            obj = actionController.meetingFlow(actionController.lastActionContent.text);
+            break;
+        case actionController.NEXT_ACTION.SKY_SCANNER:
+            obj = actionController.travelFlow(actionController.lastActionContent.text);
+            break;
+    }
     res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.17+json')
-    res.send(actionController.meetingFlow('I found this date time and location. Do you want me to create...?    '))
+    res.send(obj);
     //res.send(actionController.travelFlow('I noticed you plan to travel......'))
 });
 
