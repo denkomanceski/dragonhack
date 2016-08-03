@@ -344,9 +344,9 @@ function processAction(action, cb) {
                     };
 
                     if (lastActionContent.firstLocation && lastActionContent.secondLocation && lastActionContent.datetime) {
-                        var dayBefore = lastActionContent.datetime.add(-1, 'days');
+                        //var dayBefore = lastActionContent.datetime.add(-1, 'days');
                         var response = 'I saw you are planning to travel from ' + lastActionContent.firstLocation + ' to ' + lastActionContent.secondLocation + ' on ' + lastActionContent.datetime.format('YYYY-MM-DD')
-                            + '. The cheapest ticket I found is EasyJet on ' + dayBefore.format('YYYY-MM-DD') + ' for 130 Euros. Shall I book it?';
+                            + '. The cheapest ticket I found is EasyJet on ' + lastActionContent.datetime.format('YYYY-MM-DD') + ' for 130 Euros. Shall I book it?';
                         lastActionCode = NEXT_ACTION.SKY_SCANNER;
                         lastActionContent.text = response;
                         lastActionContent.lastActionCode = lastActionCode;
