@@ -38,6 +38,7 @@ router.get('/actionableResource/availability', (req, res) => {
 router.get('/actionableResource/:actionableResourceId', (req, res) => {
     console.log("request came", JSON.stringify(req.params));
      var obj;
+
     switch(actionController.lastActionContent.lastActionCode) {
         case actionController.NEXT_ACTION.GOOGLE_CALENDAR:
             obj = actionController.meetingFlow(actionController.lastActionContent.text);
@@ -46,6 +47,7 @@ router.get('/actionableResource/:actionableResourceId', (req, res) => {
             obj = actionController.travelFlow(actionController.lastActionContent.text);
             break;
     }
+    console.log(JSON.stringify(obj), "=======");
     res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.17+json')
     res.send(obj);
     //res.send(actionController.travelFlow('I noticed you plan to travel......'))

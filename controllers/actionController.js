@@ -253,7 +253,7 @@ function processAction(action, cb) {
                             + '. Would you like me to add a meeting to calendar and send invitations?'
                             lastActionContent = {text: response, lastActionCode};
 
-                        cb(response);
+                        //cb(response);
                         app.io.emit('action', {lastActionCode, lastActionContent});
                     }
 
