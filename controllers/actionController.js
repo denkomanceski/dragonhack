@@ -180,8 +180,7 @@ function meetingFlow(description, responseActionId) {
         };
     else if (responseActionId.indexOf('Start') != -1) {
         if (positiveResponse) {
-            //TODO: I found........ and that which will return string
-            var response = 'I found this date time and location. Do you want me to create...?';
+            var response = 'Okay, I booked the meeting at ' + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') + ' in your calendar.';
             obj = {
                 "$type": "ActionableResource_21",
                 "Id": "8a360d87-7ed7-4bea-8846-a807903d0e73",
@@ -191,6 +190,21 @@ function meetingFlow(description, responseActionId) {
                 ],
                 "ActionList": [actions[2], actions[3]]
             };
+
+            setTimeout(function() {
+                var reminder = 'You need to get going in 30 minutes to catch up with Kristjan. Take an umbrella, it might rain.';
+                obj = {
+                    "$type": "ActionableResource_21",
+                    "Id": "8a360d87-7ed7-4bea-8846-a807903d0e73",
+                    "DescriptionList": [
+                        // `This conversation is with: ${usersString} \n http://www.google.com`
+                        reminder
+                    ],
+                    "ActionList": []
+                };
+                lastActionContent = {lastActionCode: 'reminder', realOBJ: obj};
+
+            }, 30000);
         }
     }
     else if (responseActionId.indexOf('Add') != -1) {
@@ -252,9 +266,8 @@ function processAction(action, cb) {
 
                     if (lastActionContent.datetime && lastActionContent.firstLocation.name && lastActionContent.secondLocation.name) {
                         lastActionCode = NEXT_ACTION.GOOGLE_CALENDAR;
-                        var response = 'I noticed you are planning a meeting on ' + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') + " in " + lastActionContent.secondLocation.name
-                            + '. Would you like me to add a meeting to calendar and send invitations?'
-                            lastActionContent = {text: response, lastActionCode};
+                        var response = 'I saw you have a meeting with Kristjan at ' + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') + ' in ' + lastActionContent.secondLocation.name + '. Do you want me to take care of it?';
+                        lastActionContent = {text: response, lastActionCode};
 
                         //cb(response);
                         app.io.emit('action', {lastActionCode, lastActionContent});

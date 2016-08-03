@@ -46,6 +46,9 @@ router.get('/actionableResource/:actionableResourceId', (req, res) => {
         case actionController.NEXT_ACTION.SKY_SCANNER:
             obj = actionController.travelFlow(obj.text);
             break;
+        case 'reminder':
+            obj = obj.realOBJ;
+            break;
     }
     console.log(JSON.stringify(obj), "=======");
     res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.17+json')
