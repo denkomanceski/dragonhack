@@ -262,36 +262,36 @@ function processAction(action, cb) {
             case ACTION_KEYWORD.TRAVELING:
 
                 // start extracting data, because it takes some time before its done
-                externalServiceRunning = true;
-                extractionController.extractTravelData(action, function (error, result) {
-                    // result[0][0] is result from datetime parsing and result[1] is result from location parsing
-                    var source, destination;
-
-                    if (result[1].length > 1) {
-                        source = result[1][0];
-                        destination = result[1][1];
-                    } else {
-                        source = 'London'; // TODO: extract current location
-                        destination = result[1][0];
-                    }
-
-                    lastActionContent = {
-                        datetime: moment(result[0][0]),
-                        firstLocation: source,
-                        secondLocation: destination
-                    };
-
-                    if (lastActionContent.firstLocation && lastActionContent.secondLocation && lastActionContent.datetime) {
-                        lastActionCode = NEXT_ACTION.SKY_SCANNER;
-                        var response = 'I noticed you plan to travel from ' + source + ' to ' + destination + (lastActionContent.datetime ? ' on ' + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') : '') + '. ' +
-                            'Do you want me to check for available flights?';
-                        lastActionContent = {text: response, lastActionCode};
-                        cb(response);
-                        //app.io.emit('action', {lastActionCode, lastActionContent});
-                    }
-
-                    externalServiceRunning = false;
-                });
+                //externalServiceRunning = true;
+                // extractionController.extractTravelData(action, function (error, result) {
+                //     // result[0][0] is result from datetime parsing and result[1] is result from location parsing
+                //     var source, destination;
+                //
+                //     if (result[1].length > 1) {
+                //         source = result[1][0];
+                //         destination = result[1][1];
+                //     } else {
+                //         source = 'London'; // TODO: extract current location
+                //         destination = result[1][0];
+                //     }
+                //
+                //     lastActionContent = {
+                //         datetime: moment(result[0][0]),
+                //         firstLocation: source,
+                //         secondLocation: destination
+                //     };
+                //
+                //     if (lastActionContent.firstLocation && lastActionContent.secondLocation && lastActionContent.datetime) {
+                //         lastActionCode = NEXT_ACTION.SKY_SCANNER;
+                //         var response = 'I noticed you plan to travel from ' + source + ' to ' + destination + (lastActionContent.datetime ? ' on ' + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') : '') + '. ' +
+                //             'Do you want me to check for available flights?';
+                //         lastActionContent = {text: response, lastActionCode};
+                //         cb(response);
+                //         //app.io.emit('action', {lastActionCode, lastActionContent});
+                //     }
+                //
+                //     externalServiceRunning = false;
+                // });
 
                 break;
             case ACTION_KEYWORD.YES:
