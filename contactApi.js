@@ -10,14 +10,14 @@ var request = require('request');
 
 var config = {
     apiUrl: 'clean-sprint-app.4thoffice.com',
-    authToken: 'Bearer d7b0195b-9d36-6dbd-06b0-98ad2a9b8d0e'
+    authToken: 'Bearer 87c0354e-f945-5129-bbc6-950ae51c94c2'
 };
 
 var conversationConfig = {
     email: 'denkomanceski@gmail.com',
     userId: '8a360d87-7ed7-4bea-8846-a807903d0e73',
     conversationIdentity: 'A1_20f0a67d5ce841a1b409e6e98f76602d_qqq',
-    conversationWith: 'uzupan@marg.si'
+    //conversationWith: 'uzupan@marg.si'
 };
 
 var sendMailMessage = (email, title, content) => {
