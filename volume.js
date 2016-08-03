@@ -9,7 +9,8 @@ var ACTION_KEYWORD = {
     GREETING: 'how are you',
     YES: 'yes',
     NO: 'no',
-    AIRBNB: "AIRBNB"
+    AIRBNB: "AIRBNB",
+    SKY_SCANNER: 0
 };
 socket.on('connect', () => {
     console.log("Connected...");
@@ -34,7 +35,7 @@ socket.on('action', action => {
         case ACTION_KEYWORD.YES:
 
             break;
-        case ACTION_KEYWORD.AIRBNB:
+        case ACTION_KEYWORD.SKY_SCANNER:
             appendIframe(action.url);
             break;
     }
