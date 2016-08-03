@@ -17,7 +17,7 @@ exports.extractMeetingData = function (content, callback) {
 };
 
 exports.extractTravelData = function (content, callback) {
-    PythonShell.run('../parsing/time_parser.py', {
+    PythonShell.run('parsing/time_parser.py', {
         args: content
     }, callback);
 };
