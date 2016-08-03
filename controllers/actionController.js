@@ -107,7 +107,6 @@ function travelFlow(description, responseActionId) {
 
             var response = "Okay, I booked you the flight.";
 
-            app.io.emit('action', {lastActionCode: ACTION_KEYWORD.TRAVELING});
             obj = {
                 "$type": "ActionableResource_21",
                 "Id": "8a360d87-7ed7-4bea-8846-a807903d0e73",
