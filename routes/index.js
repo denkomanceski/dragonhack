@@ -37,14 +37,14 @@ router.get('/actionableResource/availability', (req, res) => {
 });
 router.get('/actionableResource/:actionableResourceId', (req, res) => {
     console.log("request came", JSON.stringify(req.params));
-     var obj;
+     var obj = actionController.getLastActionContent();
 
-    switch(actionController.lastActionContent.lastActionCode) {
+    switch(obj.lastActionCode) {
         case actionController.NEXT_ACTION.GOOGLE_CALENDAR:
-            obj = actionController.meetingFlow(actionController.lastActionContent.text);
+            obj = actionController.meetingFlow(obj.text);
             break;
         case actionController.NEXT_ACTION.SKY_SCANNER:
-            obj = actionController.travelFlow(actionController.lastActionContent.text);
+            obj = actionController.travelFlow(obj.text);
             break;
     }
     console.log(JSON.stringify(obj), "=======");

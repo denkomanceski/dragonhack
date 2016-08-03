@@ -33,15 +33,18 @@ var cityNameCodePairs = [
     {name: 'ljubljana', code: 'lju'}
 ];
 
-var lastActionCode, lastActionContent;
+var lastActionCode = {}, lastActionContent = {};
+var getLastActionContent = () => {
+    return lastActionContent;
+}
 
 // external python scripts are running asynchronously and we always wait until they finish,
 // before we continue to process new data
 var externalServiceRunning = false;
 
 var clearLastAction = function () {
-    lastActionCode = '';
-    lastActionContent = '';
+    lastActionCode = {};
+    lastActionContent = {};
 };
 var getCityCodeForName = function (cityName) {
     return _.find(cityNameCodePairs, {name: cityName.toLowerCase()}).code;
@@ -348,3 +351,4 @@ exports.meetingFlow = meetingFlow;
 exports.processAction = processAction;
 exports.travelFlow = travelFlow;
 exports.NEXT_ACTION = NEXT_ACTION;
+exports.getLastActionContent = getLastActionContent;
