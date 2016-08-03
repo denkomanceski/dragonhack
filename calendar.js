@@ -7,7 +7,7 @@ var config = {
     consumer_key: '677105350306-371f5lpnpndtgrc9p087597sarhcva1q.apps.googleusercontent.com',
     consumer_secret: 'T8BYSHVLbPOzERBWvsDJ2imm'
 }
-var token = 'ya29.CjA0A7sYdy1GZS3AH8ub_XZshfCsE9yHLUU__AQ8-IdNDqWqaQo2PkTlPo-JdY5bATQ';
+var token = 'ya29.CjA0AxCD95N9lgqoQbthxg0uCcYG0P0oEhYsllXCt6tzlZPvEAlBe6mQkwI3V61_0mw';
 var google_calendar;
 passport.use(new GoogleStrategy({
         clientID: config.consumer_key,
@@ -16,7 +16,6 @@ passport.use(new GoogleStrategy({
         scope: ['openid', 'email', 'https://www.googleapis.com/auth/calendar']
     },
     function (accessToken, refreshToken, profile, done) {
-
         //google_calendar = new gcal.GoogleCalendar(accessToken);
         google_calendar = new gcal.GoogleCalendar(accessToken);
         token = accessToken;
