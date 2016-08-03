@@ -202,7 +202,8 @@ function meetingFlow(description, responseActionId) {
                     ],
                     "ActionList": []
                 };
-                lastActionContent = {lastActionCode: 'reminder', realOBJ: obj};
+                lastActionContent.lastActionCode = 'reminder';
+                lastActionContent.realOBJ = obj;
 
             }, 30000);
         }
@@ -267,7 +268,8 @@ function processAction(action, cb) {
                     if (lastActionContent.datetime && lastActionContent.firstLocation.name && lastActionContent.secondLocation.name) {
                         lastActionCode = NEXT_ACTION.GOOGLE_CALENDAR;
                         var response = 'I saw you have a meeting with Kristjan at ' + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') + ' in ' + lastActionContent.secondLocation.name + '. Do you want me to take care of it?';
-                        lastActionContent = {text: response, lastActionCode};
+                        lastActionContent.text = response;
+                        lastActionContent.lastActionCode = lastActionCode;
 
                         //cb(response);
                         app.io.emit('action', {lastActionCode, lastActionContent});
