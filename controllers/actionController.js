@@ -36,8 +36,10 @@ var cityNameCodePairs = [
 var lastActionCode = {}, lastActionContent = {};
 var getLastActionContent = () => {
     return lastActionContent;
+};
+var clearLastContent = () => {
+    lastActionContent = {};
 }
-
 // external python scripts are running asynchronously and we always wait until they finish,
 // before we continue to process new data
 var externalServiceRunning = false;
@@ -182,7 +184,6 @@ function meetingFlow(description, responseActionId) {
             "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
         }
     ];
-    console.log(description, "DESCRIPTIONG DESCRIPTIONG DESCRIPTIONG");
     if (description)
         obj = {
             "$type": "ActionableResource_21",
@@ -406,3 +407,4 @@ exports.processAction = processAction;
 exports.travelFlow = travelFlow;
 exports.NEXT_ACTION = NEXT_ACTION;
 exports.getLastActionContent = getLastActionContent;
+exports.clearLastContent = clearLastContent;

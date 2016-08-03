@@ -48,6 +48,9 @@ router.get('/actionableResource/:actionableResourceId', (req, res) => {
             break;
         case 'reminder':
             obj = obj.realOBJ;
+            setTimeout(() => {
+                actionController.clearLastContent();
+            }, 2000);
             break;
     }
     if(!obj.Id){
