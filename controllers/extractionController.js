@@ -27,3 +27,9 @@ exports.extractTravelData = function (content, callback) {
             }, cb);
         }], callback);
 };
+
+PythonShell.run('../parsing/location_checker.py', {
+    args: 'BLABLA Abbey Street :)'
+}, (err, data) => {
+    console.log(err, data);
+});
