@@ -6,7 +6,7 @@ exports.extractMeetingData = function (content, callback) {
     // PythonShell.run('../parsing/location_checker.py', {
     //     args: content
     // }, callback);
-            PythonShell.run('../parsing/time_parser.py', {
+            PythonShell.run('parsing/time_parser.py', {
                 args: content
             }, callback);
     // async.parallel([
