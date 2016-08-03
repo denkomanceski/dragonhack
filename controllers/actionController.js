@@ -120,7 +120,7 @@ function travelFlow(description, responseActionId) {
             };
             setTimeout(() => {
                 app.io.emit('action', {
-                    lastActionCode: ACTION_KEYWORD.AIRBNB,
+                    lastActionCode: NEXT_ACTION.SKY_SCANNER,
                     url: "https://s31.postimg.org/gbroq2ggr/test.png"
                 });
             }, 1500);
@@ -351,7 +351,7 @@ function processAction(action, cb) {
                         lastActionContent.text = response;
                         lastActionContent.lastActionCode = lastActionCode;
 
-                        app.io.emit('action', {lastActionCode, lastActionContent});
+                        //app.io.emit('action', {lastActionCode, lastActionContent});
                     }
 
                     externalServiceRunning = false;
