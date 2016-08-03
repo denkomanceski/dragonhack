@@ -236,6 +236,7 @@ function processAction(action, cb) {
                 externalServiceRunning = true;
 
                 extractionController.extractMeetingData(action, function (error, result) {
+                    console.log(JSON.stringify(error), JSON.stringify(result));
                     lastActionContent = {
                         datetime: moment(result[0][0]),
                         firstLocation: START_LOCATION,
