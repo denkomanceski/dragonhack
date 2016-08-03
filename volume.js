@@ -21,7 +21,7 @@ socket.on('action', action => {
             appendIframe('https://www.skyscanner.net');
             break;
         case ACTION_KEYWORD.MEETING:
-
+            appendIframe(action.url);
             break;
         case ACTION_KEYWORD.HELLO:
             embedIframe('random');

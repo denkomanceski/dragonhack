@@ -203,7 +203,7 @@ function meetingFlow(description, responseActionId) {
                     // `This conversation is with: ${usersString} \n http://www.google.com`
                     response
                 ],
-                "ActionList": [actions[2], actions[3]]
+                "ActionList": []
             };
 
             setTimeout(function () {
@@ -221,6 +221,10 @@ function meetingFlow(description, responseActionId) {
                 lastActionContent.realOBJ = obj;
                 // TODO: Embed this
                 var cityMapperUrl = `https://citymapper.com/directions?endaddress=${lastActionContent.secondLocation.name}&endcoord=${lastActionContent.secondLocation.latitude},${lastActionContent.secondLocation.longitude}&startaddress=${lastActionContent.firstLocation.name.replace(" ", "+")}&startcoord=${lastActionContent.firstLocation.latitude},${lastActionContent.firstLocation.longitude}`;
+                setTimeout(() => {
+                    app.io.emit('action', {lastActionCode: ACTION_KEYWORD.MEETING, url: cityMapperUrl})
+                })
+
             }, 30000);
         }
     }
