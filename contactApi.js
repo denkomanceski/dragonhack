@@ -16,7 +16,7 @@ var config = {
 var conversationConfig = {
     email: 'denkomanceski@gmail.com',
     userId: '8a360d87-7ed7-4bea-8846-a807903d0e73',
-    conversationIdentity: 'A1_498dc74f785d47ee8c39763dddf8ee0b',
+    conversationIdentity: 'A1_498dc74f785d47ee8c39763dddf8ee0b123',
     //conversationWith: 'uzupan@marg.si'
 };
 

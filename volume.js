@@ -21,7 +21,9 @@ socket.on('action', action => {
             appendIframe('https://www.skyscanner.net');
             break;
         case ACTION_KEYWORD.MEETING:
-            appendIframe(action.url);
+            openScarlet(success => {
+                appendIframe(action.url);
+            });
             break;
         case ACTION_KEYWORD.HELLO:
             embedIframe('random');
@@ -98,6 +100,14 @@ var evalAppend = (tab, url) => {
         console.log("??");
     })
 };
+function openScarlet(cb){
+    findTab(tab => {
+        tab.Runtime.evaluate({expression: "document.getElementsByClassName('open-scarlett')[0].click()"}, function (err, resp) {
+            setTimeout(() => {cb(true)}, 1000)
+        })
+    })
+
+}
 function evalEmbed(tab) {
     tab.Runtime.evaluate({expression: "document.getElementsByClassName('open-scarlett')[0].click()"}, function (err, resp) {
         setTimeout(() => {

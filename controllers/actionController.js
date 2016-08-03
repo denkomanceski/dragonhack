@@ -83,6 +83,13 @@ function travelFlow(description, responseActionId) {
             "Id": "noAdd_travel",
             "$type": "ActionFinishWorkflow_18",
             "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
+        },
+        {
+            "ActionType": "Positive",
+            "Name": "Thanks",
+            "Id": "noAdd_travel",
+            "$type": "ActionFinishWorkflow_18",
+            "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
         }
     ];
     if (description)
@@ -164,7 +171,7 @@ function meetingFlow(description, responseActionId) {
             "ActionType": "Positive",
             "Name": "Yes please",
             "Id": "yesAdd_meeting",
-            "$type": "ActionNextStep_18",
+            "$type": "ActionFinishWorkflow_18",
             "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
         },
         {
@@ -173,8 +180,16 @@ function meetingFlow(description, responseActionId) {
             "Id": "noAdd_meeting",
             "$type": "ActionFinishWorkflow_18",
             "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
+        },
+        {
+            "ActionType": "Positive",
+            "Name": "Thanks",
+            "Id": "noAdd_travel",
+            "$type": "ActionFinishWorkflow_18",
+            "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
         }
     ];
+    console.log(description, "DESCRIPTIONG DESCRIPTIONG DESCRIPTIONG");
     if (description)
         obj = {
             "$type": "ActionableResource_21",
@@ -210,7 +225,7 @@ function meetingFlow(description, responseActionId) {
                     // `This conversation is with: ${usersString} \n http://www.google.com`
                     response
                 ],
-                "ActionList": []
+                "ActionList": [actions[4]]
             };
 
             setTimeout(function () {
@@ -271,6 +286,7 @@ function processAction(action, cb) {
             case ACTION_KEYWORD.HELLO:
                 //cb('Hi boss, what would you like me to do for you :)');
                 // cb('');
+                lastActionContent.lastActionCode = ACTION_KEYWORD.HELLO;
                 // app.io.emit('action', {lastActionCode: ACTION_KEYWORD.HELLO, lastActionContent: 'Hello'});
                 break;
             case ACTION_KEYWORD.GREETING:
@@ -281,7 +297,7 @@ function processAction(action, cb) {
                 externalServiceRunning = true;
 
                 extractionController.extractMeetingData(action, function (error, result) {
-                    console.log(JSON.stringify(error), JSON.stringify(result));
+                    //console.log(JSON.stringify(error), JSON.stringify(result));
                     lastActionContent = {
                         datetime: moment(result[0][0]),
                         firstLocation: START_LOCATION,
@@ -384,6 +400,9 @@ function processAction(action, cb) {
                 break;
             case ACTION_KEYWORD.NO:
                 clearLastAction();
+                break;
+            default:
+                lastActionContent.lastActionCode = '';
                 break;
         }
     }

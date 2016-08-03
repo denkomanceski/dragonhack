@@ -50,6 +50,17 @@ router.get('/actionableResource/:actionableResourceId', (req, res) => {
             obj = obj.realOBJ;
             break;
     }
+    if(!obj.Id){
+        obj = {
+            "$type": "ActionableResource_21",
+            "Id": "8a360d87-7ed7-4bea-8846-a807903d0e73",
+            "DescriptionList": [
+                // `This conversation is with: ${usersString} \n http://www.google.com`
+                'I have nothing for you mate.'
+            ],
+            "ActionList": []
+        };
+    }
     console.log(JSON.stringify(obj), "=======");
     res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.17+json')
     res.send(obj);
@@ -76,18 +87,8 @@ router.post('/action', (req, res) => {
         case 'travel':
             obj = actionController.travelFlow('', req.body.ActionList[0].Id) || req.body;
             break;
-        default:
-            obj = {
-                "$type": "ActionableResource_21",
-                "Id": "8a360d87-7ed7-4bea-8846-a807903d0e73",
-                "DescriptionList": [
-                    // `This conversation is with: ${usersString} \n http://www.google.com`
-                    'I have nothing for you mate.'
-                ],
-                "ActionList": []
-            };
-            break;
     }
+
     res.set('Content-Type', 'application/vnd.4thoffice.actionable.resource.availability-v5.17+json');
     res.send(obj);
 });
