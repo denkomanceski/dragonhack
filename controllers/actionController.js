@@ -341,7 +341,11 @@ function processAction(action, cb) {
         }
     }
 }
-
+extractionController.extractMeetingData("Hey, wanna meet tomorrow at 10pm at Abbey Street? Kind regards, Kristjan Sešek", function (error, result) {
+    console.log(JSON.stringify(error));
+    console.log("========");
+    console.log(JSON.stringify(result))
+});
 exports.lastActionContent = lastActionContent;
 exports.lastActionCode = lastActionCode;
 exports.meetingFlow = meetingFlow;
