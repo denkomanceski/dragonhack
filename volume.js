@@ -35,7 +35,7 @@ socket.on('action', action => {
 
             break;
         case ACTION_KEYWORD.AIRBNB:
-            appendIframe('https://www.airbnb.co.uk');
+            appendIframe(action.url);
             break;
     }
 });

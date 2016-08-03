@@ -106,9 +106,9 @@ function travelFlow(description, responseActionId) {
         };
     else if (responseActionId.indexOf('Start') != -1) {
         if (positiveResponse) {
-            //TODO: I found........ and that which will return string
-            var response = 'Would you also like me to check for AirBNB?';
-            app.io.emit('action', {lastActionCode: ACTION_KEYWORD.TRAVELING});
+
+            var response = "Okay, I booked you the flight.";
+
             obj = {
                 "$type": "ActionableResource_21",
                 "Id": "8a360d87-7ed7-4bea-8846-a807903d0e73",
@@ -116,8 +116,14 @@ function travelFlow(description, responseActionId) {
                     // `This conversation is with: ${usersString} \n http://www.google.com`
                     response
                 ],
-                "ActionList": [actions[2], actions[3]]
+                "ActionList": [actions[4]]
             };
+            setTimeout(() => {
+                app.io.emit('action', {
+                    lastActionCode: ACTION_KEYWORD.AIRBNB,
+                    url: "https://s31.postimg.org/gbroq2ggr/test.png"
+                });
+            }, 1500);
         }
     }
     else if (responseActionId.indexOf('Add') != -1) {
@@ -318,36 +324,38 @@ function processAction(action, cb) {
             case ACTION_KEYWORD.TRAVELING:
 
                 // start extracting data, because it takes some time before its done
-                //externalServiceRunning = true;
-                // extractionController.extractTravelData(action, function (error, result) {
-                //     // result[0][0] is result from datetime parsing and result[1] is result from location parsing
-                //     var source, destination;
-                //
-                //     if (result[1].length > 1) {
-                //         source = result[1][0];
-                //         destination = result[1][1];
-                //     } else {
-                //         source = 'London'; // TODO: extract current location
-                //         destination = result[1][0];
-                //     }
-                //
-                //     lastActionContent = {
-                //         datetime: moment(result[0][0]),
-                //         firstLocation: source,
-                //         secondLocation: destination
-                //     };
-                //
-                //     if (lastActionContent.firstLocation && lastActionContent.secondLocation && lastActionContent.datetime) {
-                //         lastActionCode = NEXT_ACTION.SKY_SCANNER;
-                //         var response = 'I noticed you plan to travel from ' + source + ' to ' + destination + (lastActionContent.datetime ? ' on ' + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') : '') + '. ' +
-                //             'Do you want me to check for available flights?';
-                //         lastActionContent = {text: response, lastActionCode};
-                //         cb(response);
-                //         //app.io.emit('action', {lastActionCode, lastActionContent});
-                //     }
-                //
-                //     externalServiceRunning = false;
-                // });
+                externalServiceRunning = true;
+                extractionController.extractTravelData(action, function (error, result) {
+                    // result[0][0] is result from datetime parsing and result[1] is result from location parsing
+                    /*var source, destination;
+
+                     if (result[1].length > 1) {
+                     source = result[1][0];
+                     destination = result[1][1];
+                     } else {
+                     source = 'London'; // TODO: extract current location
+                     destination = result[1][0];
+                     }*/
+
+                    lastActionContent = {
+                        datetime: moment(result[0]),
+                        firstLocation: 'London',
+                        secondLocation: 'Ljubljana'
+                    };
+
+                    if (lastActionContent.firstLocation && lastActionContent.secondLocation && lastActionContent.datetime) {
+                        var dayBefore = lastActionContent.datetime.add(-1, 'days');
+                        var response = 'I saw you are planning to travel from ' + lastActionContent.firstLocation + ' to ' + lastActionContent.secondLocation + ' on ' + lastActionContent.datetime.format('YYYY-MM-DD')
+                            + '. The cheapest ticket I found is EasyJet on ' + dayBefore + ' for 130 Euros. Shall I book it?';
+                        lastActionCode = NEXT_ACTION.SKY_SCANNER;
+                        lastActionContent.text = response;
+                        lastActionContent.lastActionCode = lastActionCode;
+
+                        app.io.emit('action', {lastActionCode, lastActionContent});
+                    }
+
+                    externalServiceRunning = false;
+                });
 
                 break;
             case ACTION_KEYWORD.YES:
