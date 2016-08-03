@@ -9,9 +9,9 @@ exports.extractMeetingData = function (content, callback) {
                 args: content
             }, cb);
         }, function (cb) {
-            // PythonShell.run('../parsing/location_checker.py', {
-            //     args: content
-            // }, cb);
+            PythonShell.run('../parsing/location_checker.py', {
+                args: content
+            }, cb);
         }], callback);
 };
 
