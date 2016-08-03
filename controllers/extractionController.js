@@ -17,14 +17,7 @@ exports.extractMeetingData = function (content, callback) {
 };
 
 exports.extractTravelData = function (content, callback) {
-    async.parallel([
-        function (cb) {
-            PythonShell.run('../parsing/time_parser.py', {
-                args: content
-            }, cb);
-        }, function (cb) {
-            PythonShell.run('../parsing/spacy_ner.py', {
-                args: content
-            }, cb);
-        }], callback);
+    PythonShell.run('../parsing/time_parser.py', {
+        args: content
+    }, callback);
 };
