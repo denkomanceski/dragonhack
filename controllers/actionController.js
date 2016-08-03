@@ -180,6 +180,21 @@ function meetingFlow(description, responseActionId) {
         };
     else if (responseActionId.indexOf('Start') != -1) {
         if (positiveResponse) {
+
+
+            calendar.insertEvent('denkomanceski@gmail.com', {
+                'summary': 'Meeting',
+                'description': 'This event was added by Scarlett.',
+                'start': {
+                    'dateTime': lastActionContent.datetime.format()
+                },
+                'end': {
+                    'dateTime': lastActionContent.datetime.add(1, 'hour').format()
+                },
+                'location': lastActionContent.secondLocation.name
+            }, (success) => {
+            });
+
             var response = 'Okay, I booked the meeting at ' + lastActionContent.datetime.format('YYYY-MM-DD hh:mm') + ' in your calendar.';
             obj = {
                 "$type": "ActionableResource_21",
@@ -191,7 +206,7 @@ function meetingFlow(description, responseActionId) {
                 "ActionList": [actions[2], actions[3]]
             };
 
-            setTimeout(function() {
+            setTimeout(function () {
                 var reminder = 'You need to get going in 30 minutes to catch up with Kristjan. Take an umbrella, it might rain.';
                 obj = {
                     "$type": "ActionableResource_21",
@@ -204,7 +219,8 @@ function meetingFlow(description, responseActionId) {
                 };
                 lastActionContent.lastActionCode = 'reminder';
                 lastActionContent.realOBJ = obj;
-
+                // TODO: Embed this
+                var cityMapperUrl = `https://citymapper.com/directions?endaddress=${lastActionContent.secondLocation.name}&endcoord=${lastActionContent.secondLocation.latitude},${lastActionContent.secondLocation.longitude}&startaddress=${lastActionContent.firstLocation.name.replace(" ", "+")}&startcoord=${lastActionContent.firstLocation.latitude},${lastActionContent.firstLocation.longitude}`;
             }, 30000);
         }
     }
