@@ -7,12 +7,14 @@ import os
 import csv
 import argparse
 
+mydir = os.path.dirname(__file__)
+
 def findWholeWord(word):
     """Regex to find whole word from string."""
     return re.compile(r'\b({0})\b'.format(word), flags=re.IGNORECASE).search
 
 # required for running it from node
-LONDON_STREETS = '../parsing/london.osm.streets.txt'
+LONDON_STREETS = os.path.abspath(os.path.join(mydir,'london.osm.streets.txt'))
 LOCAL_TOWN = 'London'
 
 
@@ -31,7 +33,7 @@ def get_lat_long(place_string):
     else:
         return None
 
-mydir = os.path.dirname(__file__)
+
 DATA_DIR = os.path.abspath(os.path.join(mydir, 'opname_csv_gb/DATA'))
 
 
