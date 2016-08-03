@@ -11,6 +11,7 @@ Install requirements:
 
 Install nltk modules within an interactive Python shell by calling: `nltk.download("book")`
 
+For spacy to work you need 4GB of RAM.
 Download spacy English grammar (500MB):
 `python -m spacy.en.download`
 
