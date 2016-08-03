@@ -236,6 +236,7 @@ function processAction(action, cb) {
                 externalServiceRunning = true;
 
                 extractionController.extractMeetingData(action, function (error, result) {
+                    console.log(JSON.stringify(error), JSON.stringify(result));
                     lastActionContent = {
                         datetime: moment(result[0][0]),
                         firstLocation: START_LOCATION,
@@ -340,7 +341,11 @@ function processAction(action, cb) {
         }
     }
 }
-
+extractionController.extractMeetingData("Hey, wanna meet tomorrow at 10pm at Abbey Street? Kind regards, Kristjan Sešek", function (error, result) {
+    console.log(JSON.stringify(error));
+    console.log("========");
+    console.log(JSON.stringify(result))
+});
 exports.lastActionContent = lastActionContent;
 exports.lastActionCode = lastActionCode;
 exports.meetingFlow = meetingFlow;

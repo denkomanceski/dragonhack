@@ -46,7 +46,4 @@ def example_dateutil():
 
 
 if __name__ == "__main__":
-    x = ""
-    for part in sys.argv[1:].split(">")[4:]:
-        x = x + part
-    print parse_time(x)
+   print parse_time(sys.argv[1])
