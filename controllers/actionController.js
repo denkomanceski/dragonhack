@@ -168,6 +168,7 @@ function meetingFlow(description, responseActionId) {
             "AssistantEmail": "9e8b941a-ea27-4fa4-bc6b-03db0460b4e7@4thoffice.com"
         }
     ];
+    console.log(description, "DESCRIPTIONG DESCRIPTIONG DESCRIPTIONG");
     if (description)
         obj = {
             "$type": "ActionableResource_21",
@@ -275,7 +276,7 @@ function processAction(action, cb) {
                 externalServiceRunning = true;
 
                 extractionController.extractMeetingData(action, function (error, result) {
-                    console.log(JSON.stringify(error), JSON.stringify(result));
+                    //console.log(JSON.stringify(error), JSON.stringify(result));
                     lastActionContent = {
                         datetime: moment(result[0][0]),
                         firstLocation: START_LOCATION,
