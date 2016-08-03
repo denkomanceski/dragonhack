@@ -16,7 +16,7 @@ var config = {
 var conversationConfig = {
     email: 'denkomanceski@gmail.com',
     userId: '8a360d87-7ed7-4bea-8846-a807903d0e73',
-    conversationIdentity: 'A1_20f0a67d5ce841a1b409e6e98f76602d_qqq',
+    conversationIdentity: 'A1_498dc74f785d47ee8c39763dddf8ee0b',
     //conversationWith: 'uzupan@marg.si'
 };
 
@@ -192,7 +192,7 @@ var parseAction = function (chunk) {
     var len = _.get(chunk, 'DiscussionListPage.DiscussionList[0].PostListPage.Posts.length', undefined);
     var newParsedMessage = '';
     if (len)
-        newParsedMessage = utils.replaceBreakWithNewline(_.get(chunk, `DiscussionListPage.DiscussionList[0].PostListPage.Posts[${len-1}].Text`));
+        newParsedMessage = utils.replaceBreakWithNewline(_.get(chunk, `DiscussionListPage.DiscussionList[0].PostListPage.Posts[${len-1}].BodySnippet`));
     console.log(newParsedMessage, "parsed..");
     if (newParsedMessage && newParsedMessage != lastProcessedMessage) {
 
