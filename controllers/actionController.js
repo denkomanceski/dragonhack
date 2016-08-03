@@ -264,6 +264,7 @@ function processAction(action, cb) {
             case ACTION_KEYWORD.HELLO:
                 //cb('Hi boss, what would you like me to do for you :)');
                 // cb('');
+                lastActionContent.lastActionCode = ACTION_KEYWORD.HELLO;
                 // app.io.emit('action', {lastActionCode: ACTION_KEYWORD.HELLO, lastActionContent: 'Hello'});
                 break;
             case ACTION_KEYWORD.GREETING:
@@ -375,6 +376,9 @@ function processAction(action, cb) {
                 break;
             case ACTION_KEYWORD.NO:
                 clearLastAction();
+                break;
+            default:
+                lastActionContent.lastActionCode = '';
                 break;
         }
     }
