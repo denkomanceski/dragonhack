@@ -21,6 +21,7 @@ var conversationConfig = {
 };
 
 var sendMailMessage = (email, title, content) => {
+    return;
     var options = {
         host: config.apiUrl,
         path: '/api/post',
