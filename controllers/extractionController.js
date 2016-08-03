@@ -28,7 +28,7 @@ exports.extractTravelData = function (content, callback) {
         }], callback);
 };
 console.log(path.join(__dirname, '../parsing/location_checker.py'));
-PythonShell.run(path.join(__dirname, '../parsing/time_parser.py'), {
+PythonShell.run('../parsing/time_parser.py', {
     args: 'BLABLA today Abbey Street :)'
 }, (err, data) => {
     console.log(err, data);
