@@ -10,7 +10,7 @@ var request = require('request');
 
 var config = {
     apiUrl: 'clean-sprint-app.4thoffice.com',
-    authToken: 'Bearer c6121cbc-8ea8-5526-f0da-062cc1db48e9'
+    authToken: 'Bearer 8ccdc54c-6e49-a311-a37e-a52b15f06c3b'
 };
 
 var conversationConfig = {
